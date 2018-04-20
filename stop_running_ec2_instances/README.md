@@ -1,12 +1,23 @@
 # stop_running_ec2_instances lambda function
-Stops running AWS EC2 instances of all regions based on instance tag. Here we are using `donotstop` tag.
+This function stops running AWS EC2 instances of all regions based on instance tag. Here we are using `donotstop` tag. If you mention `donotstop` as tag key only in EC2 instance, only that instance will be stopped.
 
 # Local installation
+
+Download from Github
+
+`git clone https://github.com/tensult/aws-automation-with-lambda.git`
+
+Go into function directory and download dependencies
+
 ```
-git clone https://github.com/tensult/aws-automation-with-lambda.git
 cd aws-automation-with-lambda
 npm install
 ```
+
+Run the function
+
+`node index.js`
+
 # Deploy in AWS
 
 ## Setup Lambda function
