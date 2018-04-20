@@ -1,0 +1,24 @@
+{
+    "StartAt": "CreateExportTask",
+    "States": {
+        "CreateExportTask": {
+            "Type": "Task",
+            "Resource": "LAMBDA_FUNCTION_ARN",
+            "Next": "IsAllLogsExported"
+        },
+        "IsAllLogsExported": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.continue",
+                    "BooleanEquals": true,
+                    "Next": "CreateExportTask"
+                }
+            ],
+            "Default": "SuccessState"
+        },
+        "SuccessState": {
+            "Type": "Succeed"
+        }
+    }
+}
