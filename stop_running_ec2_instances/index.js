@@ -55,6 +55,7 @@ function stopRunningEc2Instances(instanceIds, regionName) {
 
 
 exports.handler = async (event) => {
+    // console.log(JSON.stringify(AWS.config));
     try {
         let ec2Regions = await getEc2Regions();
         for (let i = 0; i < ec2Regions.Regions.length; i++) {

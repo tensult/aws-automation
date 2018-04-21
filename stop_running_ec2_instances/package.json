@@ -9,6 +9,7 @@
   "author": "Parag Poddar <parag@tensult.com>",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.224.1"
+    "aws-sdk": "^2.224.1",
+    "cli": "^1.0.1"
   }
 }
