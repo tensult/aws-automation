@@ -3,7 +3,7 @@
     "States": {
         "CreateExportTask": {
             "Type": "Task",
-            "Resource": "LAMBDA_FUNCTION_ARN",
+            "Resource": "<lambda-function-arn>",
             "Next": "IsAllLogsExported"
         },
         "IsAllLogsExported": {
