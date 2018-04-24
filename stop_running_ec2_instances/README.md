@@ -18,6 +18,12 @@ Run the function
 
 `node index.js`
 
+**Note:** It will take default configured AWS credential from your machine. If you want to test for another AWS account follow below.
+
+Pass AWS profile through CLI which is configured in your machine
+
+`node test.js --profile PROFILE`
+
 # Deploy in AWS
 
 ## Setup Lambda function
