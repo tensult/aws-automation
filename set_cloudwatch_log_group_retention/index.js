@@ -10,7 +10,7 @@ function setRetentionOfCloudwatchLogGroup(logGroupName, duration) {
 }
 
 exports.handler = async (event) => {
-    const logGroupName = event.detail.requestParameters.logGroupName || event.logGroupName;
+    const logGroupName = event.logGroupName ? event.logGroupName : event.detail.requestParameters.logGroupName;
     try {
         await setRetentionOfCloudwatchLogGroup(logGroupName, 14);
         console.log('Retention has been set to ' + logGroupName + 'for 2 weeks');
