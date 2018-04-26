@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const cloudwatchLogs = new AWS.CloudWatchLogs({region: 'ap-south-1'});
+const cloudwatchLogs = new AWS.CloudWatchLogs();
 
 function setRetentionOfCloudwatchLogGroup(logGroupName, duration) {
     let params = {
@@ -10,7 +10,7 @@ function setRetentionOfCloudwatchLogGroup(logGroupName, duration) {
 }
 
 exports.handler = async (event) => {
-    const logGroupName = event.detail.requestParameters.logGroupName;
+    const logGroupName = event.detail.requestParameters.logGroupName || event.logGroupName;
     try {
         await setRetentionOfCloudwatchLogGroup(logGroupName, 14);
         console.log('Retention has been set to ' + logGroupName + 'for 2 weeks');

@@ -1,0 +1,25 @@
+{
+  "name": "aws-automation-with-lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tensult/aws-automation-with-lambda.git"
+  },
+  "author": "Parag Poddar <parag@tensult.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tensult/aws-automation-with-lambda/issues"
+  },
+  "homepage": "https://github.com/tensult/aws-automation-with-lambda#readme",
+  "devDependencies": {
+    "cli": "^1.0.1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.227.1"
+  }
+}
