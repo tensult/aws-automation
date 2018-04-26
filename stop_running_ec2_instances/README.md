@@ -1,5 +1,5 @@
 # stop_running_ec2_instances lambda function
-This function stops running AWS EC2 instances of all regions based on instance tag. Here we are using `donotstop` tag. If you mention `donotstop` as tag key only in EC2 instance, only that instance will be stopped.
+This function stops running AWS EC2 instances of all regions based on instance tag. Here we are using `donotstop` tag. If you mention `donotstop` as tag key only in EC2 instance, only that instance will not be stopped.
 
 # Local installation
 
