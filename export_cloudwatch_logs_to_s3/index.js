@@ -1,5 +1,81 @@
 const AWS = require('aws-sdk');
-const cloudWatchLogs = new AWS.CloudWatchLogs({ region: 'ap-south-1' });
+let cloudwatchLogsInstance = {};
+let s3Instance = {};
+let __region = '';
+
+function setRegion(_region) {
+    __region = _region;
+}
+
+function setInstance(_region) {
+    cloudwatchLogsInstance = new AWS.CloudWatchLogs({ region: __region });
+    s3Instance = new AWS.S3({ region: __region });
+}
+
+function getS3Buckets() {
+    return s3Instance.listBuckets({}).promise();
+}
+
+async function isS3BucketExists(bucketName) {
+    try {
+        let bucketsObject = await getS3Buckets();
+        let isBucketExists = bucketsObject.Buckets.find((bucket) => {
+            return bucket.Name === bucketName;
+        })
+        // console.log(isBucketExists);
+        if (isBucketExists)
+            return true;
+        else
+            return false;
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function createS3BucketAndPutPolicy(bucketName) {
+    try {
+        let _isS3BucketExist = await isS3BucketExists(bucketName);
+        if (_isS3BucketExist) {
+            console.log('s3 bucket exists');
+        }
+        else {
+            await s3Instance.createBucket({
+                Bucket: bucketName
+            }).promise();
+            console.log('s3 bucket is created '+ bucketName);
+            // await putS3BucketPolicy(bucketName);
+            await s3Instance.putBucketPolicy({
+                Bucket: bucketName,
+                Policy: "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Effect\": \"Allow\",\
+                            \"Principal\": {\
+                                \"Service\": \"logs."+ __region + ".amazonaws.com\"\
+                            },\
+                            \"Action\": \"s3:GetBucketAcl\",\
+                            \"Resource\": \"arn:aws:s3:::"+ bucketName + "\"\
+                        },\
+                        {\
+                            \"Effect\": \"Allow\",\
+                            \"Principal\": {\
+                                \"Service\": \"logs."+ __region + ".amazonaws.com\"\
+                            },\
+                            \"Action\": \"s3:PutObject\",\
+                            \"Resource\": \"arn:aws:s3:::"+ bucketName + "/*\",\
+                            \"Condition\": {\
+                                \"StringEquals\": {\
+                                    \"s3:x-amz-acl\": \"bucket-owner-full-control\"\
+                                }\
+                            }\
+                        }\
+                    ]\
+                }"
+            }).promise();
+            console.log('s3 bucket policy is added');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 
 function getDayStartTimestamp(date) {
     date = date || new Date();
@@ -23,7 +99,7 @@ function getDatePath(date) {
 }
 
 function getLogPathForS3(logGroupName) {
-    if(logGroupName.startsWith('/')) {
+    if (logGroupName.startsWith('/')) {
         logGroupName = logGroupName.slice(1);
     }
     return logGroupName.replace(/\//g, '-');
@@ -41,7 +117,7 @@ function describeExportTask(taskId) {
     let params = {
         taskId: taskId
     };
-    return cloudWatchLogs.describeExportTasks(params).promise();
+    return cloudwatchLogsInstance.describeExportTasks(params).promise();
 }
 
 let waitErrorCount = 0;
@@ -77,7 +153,7 @@ async function exportToS3Task(s3BucketName, logGroupName, logFolderName) {
             to: getDayStartTimestamp()
         };
         // console.log(params);
-        const response = await cloudWatchLogs.createExportTask(params).promise();
+        const response = await cloudwatchLogsInstance.createExportTask(params).promise();
         await waitForExportTaskToComplete(response.taskId);
     } catch (error) {
         throw error;
@@ -89,16 +165,19 @@ function getCloudWatchLogGroups(nextToken, limit) {
         nextToken: nextToken,
         limit: limit
     };
-    return cloudWatchLogs.describeLogGroups(params).promise();
+    return cloudwatchLogsInstance.describeLogGroups(params).promise();
 }
 
-// Pass s3BucketName, logFolderName and logGroupFilter in event
 exports.handler = async (event) => {
+    let region = event.region;
     let s3BucketName = event.s3BucketName;
     let logFolderName = event.logFolderName;
     let nextToken = event.nextToken;
     let logGroupFilter = event.logGroupFilter;
     try {
+        setRegion(region);
+        setInstance();
+        await createS3BucketAndPutPolicy(s3BucketName);
         let cloudWatchLogGroups = await getCloudWatchLogGroups(nextToken, 1);
         event.nextToken = cloudWatchLogGroups.nextToken;
         event.continue = cloudWatchLogGroups.nextToken !== undefined;
@@ -108,7 +187,7 @@ exports.handler = async (event) => {
             return event;
         }
         await exportToS3Task(s3BucketName, logGroupName, logFolderName);
-        console.log("Successfully created export task");
+        console.log("Successfully created export task for "+ logGroupName);
         return event;
     } catch (error) {
         console.error(error);
