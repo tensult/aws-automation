@@ -181,6 +181,9 @@ exports.handler = async (event) => {
         let cloudWatchLogGroups = await getCloudWatchLogGroups(nextToken, 1);
         event.nextToken = cloudWatchLogGroups.nextToken;
         event.continue = cloudWatchLogGroups.nextToken !== undefined;
+        if(cloudWatchLogGroups.logGroups.length < 1) {
+            return event;
+        }
         const logGroupName = cloudWatchLogGroups.logGroups[0].logGroupName;
         if (logGroupFilter && logGroupName.toLowerCase().indexOf(logGroupFilter) < 0) {
             // Ignore log group
