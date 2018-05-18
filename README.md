@@ -1,6 +1,7 @@
 
 # AWS Automation with Lambda
 - [Set cloudwatch log group retention](#set-cloudwatch-log-group-retention)
+- [Exports cloudwatch logs to s3](#export-cloudwatch-logs-to-s3)
 # Set cloudwatch log group retention
 This function sets a cloudwatch log group retention for 2 weeks.
 ## Deploy in AWS
