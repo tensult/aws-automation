@@ -1,0 +1,21 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "ec2:DescribeInstances",
+                "sns:Publish",
+                "ec2:StartInstances",
+                "ec2:CreateSnapshot",
+                "ec2:DescribeSnapshots",
+                "ec2:StopInstances",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
