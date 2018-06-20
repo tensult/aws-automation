@@ -1,6 +1,0 @@
-{
-    "region": "eu-west-1",
-    "logGroupFilter": "prod",
-    "s3BucketName": "BUCKET_NAME",
-    "logFolderName": "backend"
-}
