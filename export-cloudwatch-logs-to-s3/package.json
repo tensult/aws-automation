@@ -1,0 +1,14 @@
+{
+  "name": "export_cloudwatch_logs_to_s3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Parag Poddar <parag@tensult.com>",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.225.1"
+  }
+}
