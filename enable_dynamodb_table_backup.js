@@ -1,3 +1,9 @@
+/**
+ * DynamoDB table backups provides disaster recovery for tables in case of accidental deletes
+ * so it is recommended to enable table backups for production tables.
+ * To know more, you can read this blog: 
+ * https://medium.com/tensult/aws-dynamodb-point-in-time-recovery-e8711d6d04cb
+ */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const AWS = require('aws-sdk');
 const cli = require('cli');
