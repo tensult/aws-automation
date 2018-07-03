@@ -1,9 +1,10 @@
 /**
  * Setting proper retention period for CloudWatch log groups is important 
  * as it is quite costly to keep the logs forever and by default CloudWatch 
- * log groups retention is set to Never expire so we can use this script to
- * set retention for all our log groups at once.
- * You can know more about this here: 
+ * log groups retention is set to Never expire.
+ *
+ * We can use this script to set retention for all our log groups at once.
+ * You can know more about CloudWatch log group retention here: 
  * https://medium.com/tensult/manage-aws-cloudwatch-log-group-retention-using-automation-26add478b0c5
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
