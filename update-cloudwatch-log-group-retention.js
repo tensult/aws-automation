@@ -1,3 +1,11 @@
+/**
+ * Setting proper retention period for CloudWatch log groups is important 
+ * as it is quite costly to keep the logs forever and by default CloudWatch 
+ * log groups retention is set to Never expire so we can use this script to
+ * set retention for all our log groups at once.
+ * You can know more about this here: 
+ * https://medium.com/tensult/manage-aws-cloudwatch-log-group-retention-using-automation-26add478b0c5
+ */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
 const AWS = require('aws-sdk');
@@ -7,7 +15,7 @@ const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string'],
-    retention: ['R', 'Log group retention period in days', 'number']
+    retention: ['R', 'Log group retention period in days', 'number', '14']
 });
 
 awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
@@ -30,7 +38,7 @@ async function setLogGroupRetention() {
                     if (logGroup.retentionInDays === cliArgs.retention) {
                         continue;
                     }
-                    console.log("Setting retention for", logGroup.logGroupName);
+                    console.log(`Setting retention period of ${cliArgs.retention} day for log group: ${logGroup.logGroupName}`);
                     await cloudwatchLogs.putRetentionPolicy({
                         logGroupName: logGroup.logGroupName,
                         retentionInDays: cliArgs.retention
@@ -43,7 +51,7 @@ async function setLogGroupRetention() {
                 isCompleted = true
             }
         } catch (error) {
-            if(error.code === 'ThrottlingException') {
+            if (error.code === 'ThrottlingException') {
                 await wait(2000);
             } else {
                 throw error;
