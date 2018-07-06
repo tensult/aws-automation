@@ -19,6 +19,10 @@ const cliArgs = cli.parse({
     retention: ['R', 'Log group retention period in days', 'number', '14']
 });
 
+if(!cliArgs.profile || !cliArgs.region) {
+    cli.getUsage();
+}
+
 awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
 const cloudwatchLogs = new AWS.CloudWatchLogs();

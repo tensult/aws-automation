@@ -14,6 +14,10 @@ const cliArgs = cli.parse({
     tablePrefix: ['t', 'dynamodb table prefix', 'string'],
 });
 
+if(!cliArgs.profile || !cliArgs.region) {
+    cli.getUsage();
+}
+
 awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
 const dynamodb = new AWS.DynamoDB();
