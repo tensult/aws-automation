@@ -1,0 +1,14 @@
+{
+  "name": "send_custom_metrics_to_cloudwatch_for_lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Parag Poddar <parag@tensult.com>",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.266.1"
+  }
+}
