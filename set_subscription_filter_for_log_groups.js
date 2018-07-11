@@ -1,12 +1,9 @@
 /**
- * Setting proper retention period for CloudWatch log groups is important 
- * as it is quite costly to keep the logs forever and by default CloudWatch 
- * log groups retention is set to Never expire.
+ * Sets subscription filter for CloudWatch log groups so that LogEvents 
+ * can be delivered to Lambda or Kinesis streams.
  *
- * We can use this script to set retention for all our log groups at once.
- * You can know more about CloudWatch log group retention here: 
- * https://medium.com/tensult/manage-aws-cloudwatch-log-group-retention-using-automation-26add478b0c5
- */
+ * We can use this script to set subscription filter for all our log groups at once.
+*/
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
 const AWS = require('aws-sdk');
@@ -16,10 +13,15 @@ const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string'],
-    retention: ['R', 'Log group retention period in days', 'number', '14']
+    filterPattern: ['P', 'Filter Pattern', 'string'],
+    filterName: ['f', 'Filter Name', 'string', 'logFilter'],
+    destinationArn: ['d', 'Destination ARN', 'string']
 });
 
-if(!cliArgs.profile || !cliArgs.region) {
+if (!cliArgs.profile ||
+    !cliArgs.region ||
+    !cliArgs.destinationArn ||
+    !cliArgs.filterPattern) {
     cli.getUsage();
 }
 
@@ -30,7 +32,7 @@ const cloudwatchLogs = new AWS.CloudWatchLogs();
 let isCompleted = false;
 let nextToken = undefined;
 
-async function setLogGroupRetention() {
+async function setLogGroupSubscriptionFilter() {
     while (!isCompleted) {
         try {
             const response = await cloudwatchLogs.describeLogGroups({
@@ -40,13 +42,12 @@ async function setLogGroupRetention() {
             if (response.logGroups) {
                 for (let i = 0; i < response.logGroups.length; i++) {
                     const logGroup = response.logGroups[i];
-                    if (logGroup.retentionInDays === cliArgs.retention) {
-                        continue;
-                    }
-                    console.log(`Setting retention period of ${cliArgs.retention} day for log group: ${logGroup.logGroupName}`);
-                    await cloudwatchLogs.putRetentionPolicy({
+                    console.log(`Setting subscription filter for log group: ${logGroup.logGroupName}`);
+                    await cloudwatchLogs.putSubscriptionFilter({
                         logGroupName: logGroup.logGroupName,
-                        retentionInDays: cliArgs.retention
+                        destinationArn: cliArgs.destinationArn,
+                        filterName: cliArgs.filterName,
+                        filterPattern: cliArgs.filterPattern
                     }).promise();
                     await wait(500);
                 }
@@ -64,4 +65,4 @@ async function setLogGroupRetention() {
         }
     }
 }
-setLogGroupRetention();
+setLogGroupSubscriptionFilter();
