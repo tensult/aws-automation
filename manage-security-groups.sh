@@ -39,8 +39,8 @@ then
 fi
 if [ $status == "open" ]
 then
-aws ec2 --profile $profile authorize-security-group-ingress --group-name $group --protocol tcp --port $port --cidr 0.0.0.0/0
+aws ec2 --profile $profile authorize-security-group-ingress --group-id $group --protocol tcp --port $port --cidr 0.0.0.0/0
 elif [ $status == "close" ]
 then
-aws ec2 --profile $profile revoke-security-group-ingress --group-name $group --protocol tcp --port $port --cidr 0.0.0.0/0
+aws ec2 --profile $profile revoke-security-group-ingress --group-id $group --protocol tcp --port $port --cidr 0.0.0.0/0
 fi
