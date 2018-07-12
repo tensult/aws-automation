@@ -32,9 +32,9 @@ function getMetrics(message) {
         return undefined;
     }
     const splitedMessage = message.split('\t');
-    metricData.BilledDuration = parseFloat(splitedMessage[2].split(' ')[2]);
-    metricData.ConfiguredMemorySize = parseFloat(splitedMessage[3].split(' ')[2]);
-    metricData.UsedMemorySize = parseFloat(splitedMessage[4].split(' ')[3]);
+    metricData.BilledDuration = parseFloat(splitedMessage[2].replace(/[^0-9]/g, ""));
+    metricData.ConfiguredMemorySize = parseFloat(splitedMessage[3].replace(/[^0-9]/g, ""));
+    metricData.UsedMemorySize = parseFloat(splitedMessage[4].replace(/[^0-9]/g, ""));
     return metricData;
 }
 
