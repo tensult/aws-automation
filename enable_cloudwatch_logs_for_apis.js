@@ -1,3 +1,8 @@
+/**
+ * Enable all ApiGateway Apis logging to CloudWatch
+ * 
+ */
+
 const AWS = require('aws-sdk');
 const ApiGateway = new AWS.APIGateway({ region: 'ap-south-1' });
 
@@ -10,14 +15,12 @@ function wait(timeout) {
 }
 
 function isEmpty(obj) {
-    for(var prop in obj) {
+    for(let prop in obj) {
         if(obj.hasOwnProperty(prop))
             return false;
     }
     return JSON.stringify(obj) === JSON.stringify({});
 }
-
-// console.log(isEmpty({a:5}));
 
 // Deploy api to stage
 function createDeployment(restApiId, stageName) {
@@ -37,15 +40,13 @@ function updateStage(restApiId, stageName) {
                 op: 'replace',
                 path: '/*/*/logging/loglevel',
                 value: 'INFO'
-            },
-            /* more items */
+            }
         ]
     };
     return ApiGateway.updateStage(params).promise();
 }
 
 function hasLoggingEnabled(stage) {
-    // console.log(stage)
     if (isEmpty(stage.methodSettings) || stage.methodSettings['*/*'].loggingLevel === 'OFF') {
         return false;
     }
@@ -64,7 +65,6 @@ function getRestApis() {
 function getStages(restApiId) {
     const params = {
         restApiId, /* required */
-        // deploymentId: 'STRING_VALUE'
     };
     return ApiGateway.getStages(params).promise();
 }
@@ -86,7 +86,7 @@ async function enableCloudWatchLogsHandler() {
                 console.log('Log enabled response: ', JSON.stringify(isLogggingEnabled));
                 const deployedApi = await createDeployment(restApiId, stageName);
                 console.log('Deployed api response: ', deployedApi);
-                await wait(10000);
+                await wait(10000); // Wait because AWS supports 1 request every 5 seconds per account for createDeployment api call
             }
         }
     }
