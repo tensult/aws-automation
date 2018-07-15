@@ -4,15 +4,22 @@
  */
 
 const AWS = require('aws-sdk');
-const ApiGateway = new AWS.APIGateway({ region: 'ap-south-1' });
+const wait = require('./util/wait');
+const cli = require('cli');
+const awsConfigHelper = require('./util/awsConfigHelper');
 
-function wait(timeout) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve()
-        }, timeout)
-    })
+const cliArgs = cli.parse({
+    profile: ['p', 'AWS profile name', 'string', 'default'],
+    region: ['r', 'AWS region', 'string']
+});
+
+if (!cliArgs.profile || !cliArgs.region) {
+    cli.getUsage();
 }
+
+awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+
+const ApiGateway = new AWS.APIGateway();
 
 function isEmpty(obj) {
     for (let prop in obj) {
