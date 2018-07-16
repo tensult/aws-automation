@@ -1,6 +1,6 @@
 /**
  * Enable all ApiGateway Apis logging to CloudWatch
- * 
+ * After enabling logging, log level will be INFO
  */
 
 const AWS = require('aws-sdk');
@@ -60,6 +60,14 @@ function hasLoggingEnabled(stage) {
     return true;
 }
 
+// Check log level is INFO or not
+function checkLogLevelForINFO(stage) {
+    if (!isEmpty(stage.methodSettings) && stage.methodSettings['*/*'].loggingLevel === 'INFO') {
+        return true;
+    }
+    return false;
+}
+
 function getRestApis() {
     const params = {
         // limit: 0,
@@ -85,17 +93,20 @@ async function enableCloudWatchLogsHandler() {
             console.log(`Rest API id is ${restApis.items[i].id} and stages: ${JSON.stringify(stages)}`);
             for (let j = 0; j < stages.item.length; j++) {
                 const _hasLoggingEnabled = hasLoggingEnabled(stages.item[j]);
+                const isLoglevelInfo = checkLogLevelForINFO(stages.item[j]);
                 console.log('log enable status: ', _hasLoggingEnabled);
-                if (!_hasLoggingEnabled) {
-                    const restApiId = restApis.items[i].id;
-                    const stageName = stages.item[j].stageName;
-                    console.log(`logging enabling starting for restapi id: ${restApiId} and stage: ${stageName}`);
-                    const isLogggingEnabled = await updateStage(restApiId, stageName);
-                    console.log('Log enabled response: ', JSON.stringify(isLogggingEnabled));
-                    const deployedApi = await createDeployment(restApiId, stageName);
-                    console.log('Deployed api response: ', deployedApi);
-                    await wait(10000); // Wait because AWS supports 1 request every 5 seconds per account for createDeployment api call
+                console.log('Info log level status: ', isLoglevelInfo);
+                if (_hasLoggingEnabled && isLoglevelInfo) {
+                    continue;
                 }
+                const restApiId = restApis.items[i].id;
+                const stageName = stages.item[j].stageName;
+                console.log(`logging enabling starting for restapi id: ${restApiId} and stage: ${stageName}`);
+                const isLogggingEnabled = await updateStage(restApiId, stageName);
+                console.log('Log enabled response: ', JSON.stringify(isLogggingEnabled));
+                const deployedApi = await createDeployment(restApiId, stageName);
+                console.log('Deployed api response: ', deployedApi);
+                await wait(10000); // Wait because AWS supports 1 request every 5 seconds per account for createDeployment api call
             }
         }
     } catch (err) {
