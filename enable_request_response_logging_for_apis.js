@@ -32,8 +32,7 @@ function isEmpty(obj) {
 // Deploy api to stage
 function createDeployment(restApiId, stageName) {
     var params = {
-        restApiId,
-        /* required */
+        restApiId, /* required */
         stageName
     };
     return ApiGateway.createDeployment(params).promise();
@@ -41,25 +40,24 @@ function createDeployment(restApiId, stageName) {
 
 function updateStage(restApiId, stageName) {
     const params = {
-        restApiId,
-        /* required */
-        stageName,
-        /* required */
-        patchOperations: [{
-            op: 'replace',
-            path: '/*/*/logging/loglevel',
-            value: 'INFO'
-        }]
+        restApiId, /* required */
+        stageName, /* required */
+        patchOperations: [
+            {
+                op: 'replace',
+                path: '/*/*/logging/dataTrace',
+                value: "true"
+            }
+        ]
     };
     return ApiGateway.updateStage(params).promise();
 }
 
-// Check log level is INFO or not
-function checkLogLevelForINFO(stage) {
-    if (!isEmpty(stage.methodSettings) && stage.methodSettings['*/*'].loggingLevel === 'INFO') {
-        return true;
+function hasRequestLoggingEnabled(stage) {
+    if (isEmpty(stage.methodSettings) || !stage.methodSettings['*/*'].dataTraceEnabled) {
+        return false;
     }
-    return false;
+    return true;
 }
 
 function getRestApis() {
@@ -73,8 +71,7 @@ function getRestApis() {
 // Get info anout stage resource of api
 function getStages(restApiId) {
     const params = {
-        restApiId,
-        /* required */
+        restApiId, /* required */
     };
     return ApiGateway.getStages(params).promise();
 }
@@ -82,21 +79,21 @@ function getStages(restApiId) {
 async function enableCloudWatchLogsHandler() {
     try {
         const restApis = await getRestApis();
-        console.log('Rest APIs: ', restApis);
         for (let i = 0; i < restApis.items.length; i++) {
             const stages = await getStages(restApis.items[i].id);
-            console.log(`Rest API id is ${restApis.items[i].id} and stages: ${JSON.stringify(stages)}`);
+            console.log(`Rest API id is ${restApis.items[i].id} | ${restApis.items[i].name}`);
             for (let j = 0; j < stages.item.length; j++) {
-                const isLoglevelInfo = checkLogLevelForINFO(stages.item[j]);
-                console.log('Info log level status: ', isLoglevelInfo);
-                if (isLoglevelInfo) {
+                const hasLoggingEnabled = hasRequestLoggingEnabled(stages.item[j]);
+                console.log('Request and Response logging enable status: ', hasLoggingEnabled);
+                if (hasLoggingEnabled) {
                     continue;
                 }
                 const restApiId = restApis.items[i].id;
                 const stageName = stages.item[j].stageName;
-                console.log(`logging enabling starting for restapi id: ${restApiId} and stage: ${stageName}`);
+                console.log(`logging enabling starting for restapi id: ${restApiId} | ${restApis.items[i].name} and stage: ${stageName}`);
                 const updateStageResponse = await updateStage(restApiId, stageName);
                 console.log('Log enabled response: ', JSON.stringify(updateStageResponse));
+                const deployedApi = await createDeployment(restApiId, stageName);
                 await wait(1000);
             }
         }
