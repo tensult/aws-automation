@@ -1,8 +1,5 @@
 /**
- * Setting proper timeout for lambda functions is important as it will 
- * impact the performance. 
- *
- * We can use this script to set timeout for all our Lambda functions at once.
+ * We can use this script to set or remove an environment variable for all our Lambda functions at once.
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
