@@ -23,6 +23,7 @@ if (!cliArgs.profile || !cliArgs.region) {
 awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
 const lambda = new AWS.Lambda();
+const filterRegex = new RegExp(cliArgs.filterName);
 
 let isCompleted = false;
 let nextToken = undefined;
@@ -39,9 +40,7 @@ async function setFunctionMemory() {
                     if (fn.MemorySize === cliArgs.memory) {
                         continue;
                     }
-                    if (cliArgs.filterName &&
-                        fn.FunctionName.toLowerCase().indexOf(cliArgs.filterName.toLowerCase()) === -1) {
-                        console.log("Skipping function", fn.FunctionName);
+                    if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         continue;
                     }
                     console.log(`Setting memory ${cliArgs.memory} MB for function: ${fn.FunctionName}`);

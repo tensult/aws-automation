@@ -28,6 +28,8 @@ awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 const lambda = new AWS.Lambda();
 const cloudwatch = new AWS.CloudWatch();
 
+const filterRegex = new RegExp(cliArgs.filterName);
+
 let isCompleted = false;
 let nextToken = undefined;
 
@@ -40,8 +42,7 @@ async function setFunctionInvocationAlarms() {
             if (response.Functions) {
                 for (let i = 0; i < response.Functions.length; i++) {
                     const fn = response.Functions[i];
-                    if (cliArgs.filterName &&
-                        fn.FunctionName.toLowerCase().indexOf(cliArgs.filterName.toLowerCase()) === -1) {
+                    if (cliArgs.filterName && fn.FunctionName.match(filterRegex)) {
                         console.log("Skipping function", fn.FunctionName);
                         continue;
                     }

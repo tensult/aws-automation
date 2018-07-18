@@ -13,10 +13,11 @@ const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
-    timeout: ['t', 'Function timeout in seconds', 'number']
+    envVarName: ['n', 'Environment variable name', 'string'],
+    envVarValue: ['v', 'Environment variable value', 'string']
 });
 
-if (!cliArgs.profile || !cliArgs.region || !cliArgs.timeout) {
+if (!cliArgs.profile || !cliArgs.region || !cliArgs.envVarName) {
     cli.getUsage();
 }
 
@@ -37,16 +38,25 @@ async function setFunctionTimeout() {
             if (response.Functions) {
                 for (let i = 0; i < response.Functions.length; i++) {
                     const fn = response.Functions[i];
-                    if (fn.Timeout === cliArgs.timeout) {
-                        continue;
-                    }
                     if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         continue;
                     }
-                    console.log(`Setting timeout ${cliArgs.timeout} seconds for function: ${fn.FunctionName}`);
+                    const newEnvironment = fn.Environment && fn.Environment.Variables
+                                             ? fn.Environment: {Variables: {}};
+                    if(!cliArgs.envVarValue) {
+                        if(!newEnvironment.Variables || !newEnvironment.Variables[cliArgs.envVarName]) {
+                            continue;
+                        } else {
+                            delete newEnvironment.Variables[cliArgs.envVarName];
+                            console.log(`Removing Environment variable ${cliArgs.envVarName} for function: ${fn.FunctionName}`);
+                        }
+                    } else {
+                        newEnvironment.Variables[cliArgs.envVarName] = cliArgs.envVarValue;
+                        console.log(`Setting Environment variable ${cliArgs.envVarName} to ${cliArgs.envVarValue} for function: ${fn.FunctionName}`);
+                    }
                     await lambda.updateFunctionConfiguration({
                         FunctionName: fn.FunctionName,
-                        Timeout: cliArgs.timeout
+                        Environment: newEnvironment
                     }).promise();
                     await wait(500);
                 }
