@@ -10,7 +10,8 @@ const awsConfigHelper = require('./util/awsConfigHelper');
 
 const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
-    region: ['r', 'AWS region', 'string']
+    region: ['r', 'AWS region', 'string'],
+    logLevel: ['l', 'Log level', 'string', 'INFO'] 
 });
 
 if (!cliArgs.profile || !cliArgs.region) {
@@ -48,15 +49,15 @@ function updateStage(restApiId, stageName) {
         patchOperations: [{
             op: 'replace',
             path: '/*/*/logging/loglevel',
-            value: 'INFO'
+            value: cliArgs.logLevel
         }]
     };
     return ApiGateway.updateStage(params).promise();
 }
 
-// Check log level is INFO or not
-function checkLogLevelForINFO(stage) {
-    if (!isEmpty(stage.methodSettings) && stage.methodSettings['*/*'].loggingLevel === 'INFO') {
+// Check log level is given log level or not
+function checkLogLevel(stage) {
+    if (!isEmpty(stage.methodSettings) && stage.methodSettings['*/*'].loggingLevel === cliArgs.logLevel) {
         return true;
     }
     return false;
@@ -87,16 +88,15 @@ async function enableCloudWatchLogsHandler() {
             const stages = await getStages(restApis.items[i].id);
             console.log(`Rest API id is ${restApis.items[i].id} and stages: ${JSON.stringify(stages)}`);
             for (let j = 0; j < stages.item.length; j++) {
-                const isLoglevelInfo = checkLogLevelForINFO(stages.item[j]);
-                console.log('Info log level status: ', isLoglevelInfo);
-                if (isLoglevelInfo) {
+                const isLogLevelCorrect = checkLogLevel(stages.item[j]);
+                console.log('Log level status: ', isLogLevelCorrect);
+                if (isLogLevelCorrect) {
                     continue;
                 }
                 const restApiId = restApis.items[i].id;
                 const stageName = stages.item[j].stageName;
-                console.log(`logging enabling starting for restapi id: ${restApiId} and stage: ${stageName}`);
-                const updateStageResponse = await updateStage(restApiId, stageName);
-                console.log('Log enabled response: ', JSON.stringify(updateStageResponse));
+                console.log(`Setting logLevel=${cliArgs.logLevel} for restapi id: ${restApiId} and stage: ${stageName}`);
+                await updateStage(restApiId, stageName);
                 await wait(1000);
             }
         }

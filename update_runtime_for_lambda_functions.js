@@ -13,7 +13,7 @@ const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
-    runRime: ['R', 'Function Run time', 'string']
+    runTime: ['R', 'Function Run time', 'string']
 });
 
 if (!cliArgs.profile || !cliArgs.region) {
