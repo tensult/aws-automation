@@ -1,5 +1,5 @@
 /**
- * We can use this script to set or remove an environment variable for all our Lambda functions at once.
+ * We can use this script to get a particular environment variable of all our Lambda functions at once.
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
@@ -10,8 +10,7 @@ const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
-    envVarName: ['n', 'Environment variable name', 'string'],
-    envVarValue: ['v', 'Environment variable value', 'string']
+    envVarName: ['n', 'Environment variable name', 'string']
 });
 
 if (!cliArgs.profile || !cliArgs.region || !cliArgs.envVarName) {
@@ -26,7 +25,7 @@ const filterRegex = new RegExp(cliArgs.filterName);
 let isCompleted = false;
 let nextToken = undefined;
 
-async function seFunctionEnvVar() {
+async function getEnvironmentVariable() {
     while (!isCompleted) {
         try {
             const response = await lambda.listFunctions({
@@ -38,24 +37,12 @@ async function seFunctionEnvVar() {
                     if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         continue;
                     }
-                    const newEnvironment = fn.Environment && fn.Environment.Variables
-                                             ? fn.Environment: {Variables: {}};
-                    if(!cliArgs.envVarValue) {
-                        if(!newEnvironment.Variables || !newEnvironment.Variables[cliArgs.envVarName]) {
-                            continue;
-                        } else {
-                            delete newEnvironment.Variables[cliArgs.envVarName];
-                            console.log(`Removing Environment variable ${cliArgs.envVarName} for function: ${fn.FunctionName}`);
-                        }
+                   
+                    if(fn.Environment && fn.Environment.Variables && fn.Environment.Variables[cliArgs.envVarName]) {
+                        console.log(`${fn.FunctionName} has Environment variable: ${cliArgs.envVarName} with value: ${fn.Environment.Variables[cliArgs.envVarName]}`);
                     } else {
-                        newEnvironment.Variables[cliArgs.envVarName] = cliArgs.envVarValue;
-                        console.log(`Setting Environment variable ${cliArgs.envVarName} to ${cliArgs.envVarValue} for function: ${fn.FunctionName}`);
+                        console.log(`${fn.FunctionName} has not Environment variable: ${cliArgs.envVarName}`);
                     }
-                    await lambda.updateFunctionConfiguration({
-                        FunctionName: fn.FunctionName,
-                        Environment: newEnvironment
-                    }).promise();
-                    await wait(500);
                 }
                 nextToken = response.NextMarker;
                 isCompleted = !nextToken;
@@ -71,4 +58,4 @@ async function seFunctionEnvVar() {
         }
     }
 }
-seFunctionEnvVar();
+getEnvironmentVariable();
