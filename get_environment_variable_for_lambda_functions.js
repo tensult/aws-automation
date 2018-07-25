@@ -41,7 +41,7 @@ async function getEnvironmentVariable() {
                     if(fn.Environment && fn.Environment.Variables && fn.Environment.Variables[cliArgs.envVarName]) {
                         console.log(`${fn.FunctionName} has Environment variable: ${cliArgs.envVarName} with value: ${fn.Environment.Variables[cliArgs.envVarName]}`);
                     } else {
-                        console.log(`${fn.FunctionName} has not Environment variable: ${cliArgs.envVarName}`);
+                        console.log(`${fn.FunctionName} does not have Environment variable: ${cliArgs.envVarName}`);
                     }
                 }
                 nextToken = response.NextMarker;
