@@ -1,8 +1,5 @@
 /**
- * Sets subscription filter for CloudWatch log groups so that LogEvents 
- * can be delivered to Lambda or Kinesis streams.
- *
- * We can use this script to set subscription filter for all our log groups at once.
+ * Removes subscription filters of CloudWatch log groups.
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
