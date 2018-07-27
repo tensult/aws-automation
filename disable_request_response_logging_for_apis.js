@@ -46,7 +46,7 @@ function updateStage(restApiId, stageName) {
             {
                 op: 'replace',
                 path: '/*/*/logging/dataTrace',
-                value: "true"
+                value: "false"
             }
         ]
     };
@@ -76,7 +76,7 @@ function getStages(restApiId) {
     return ApiGateway.getStages(params).promise();
 }
 
-async function enableRequestLogging() {
+async function disableRequestLogging() {
     try {
         const restApis = await getRestApis();
         for (let i = 0; i < restApis.items.length; i++) {
@@ -85,12 +85,12 @@ async function enableRequestLogging() {
             for (let j = 0; j < stages.item.length; j++) {
                 const hasLoggingEnabled = hasRequestLoggingEnabled(stages.item[j]);
                 console.log('Request and Response logging enable status: ', hasLoggingEnabled);
-                if (hasLoggingEnabled) {
+                if (!hasLoggingEnabled) {
                     continue;
                 }
                 const restApiId = restApis.items[i].id;
                 const stageName = stages.item[j].stageName;
-                console.log(`Enabling request logging for restapi id: ${restApiId} | ${restApis.items[i].name} and stage: ${stageName}`);
+                console.log(`Disabling request logging for restapi id: ${restApiId} | ${restApis.items[i].name} and stage: ${stageName}`);
                 await updateStage(restApiId, stageName);
                 await wait(1000);
             }
@@ -100,4 +100,4 @@ async function enableRequestLogging() {
     }
 }
 
-enableRequestLogging();
+disableRequestLogging();
