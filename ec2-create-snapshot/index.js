@@ -33,7 +33,19 @@ function isSnapshotInstance(ec2Reservations) {
 function ec2CreateSnapshot(ec2VolumeId) {
     let params = {
         VolumeId: ec2VolumeId,
-        Description: 'volume id: ' + ec2VolumeId
+        Description: 'It is automatically created snapshot and resource volume id: ' + ec2VolumeId,
+        TagSpecifications: [
+            {
+                ResourceType: 'snapshot',
+                Tags: [
+                    {
+                        Key: 'Name',
+                        Value: 'Automated'
+                    }
+                ]
+            }
+
+        ]
     };
     return EC2.createSnapshot(params).promise();
 }
@@ -98,7 +110,7 @@ function getEc2Instances(tagKey, instanceId, volumeId) {
 
 async function handleStartEc2Instance(ec2Reservations) {
     try {
-        if(!isSnapshotInstance(ec2Reservations)) {
+        if (!isSnapshotInstance(ec2Reservations)) {
             return;
         }
         let instanceId = ec2Reservations.Reservations[0].Instances[0].InstanceId;
@@ -125,10 +137,10 @@ async function handleSNSPublish(event) {
 async function checkRootVolume(ec2Reservations, volumeId) {
     try {
         console.log(JSON.stringify(ec2Reservations));
-        if (!ec2Reservations || 
-            !ec2Reservations.Reservations || 
-            !ec2Reservations.Reservations.length || 
-            !ec2Reservations.Reservations[0].Instances || 
+        if (!ec2Reservations ||
+            !ec2Reservations.Reservations ||
+            !ec2Reservations.Reservations.length ||
+            !ec2Reservations.Reservations[0].Instances ||
             !ec2Reservations.Reservations[0].Instances.length) {
             return false;
         }
@@ -160,7 +172,7 @@ async function handleEc2CreateSnapshotForOthersVolume(ec2Reservations) {
             let createdEc2Snapshot = await ec2CreateSnapshot(instance.BlockDeviceMappings[j].Ebs.VolumeId);
             console.log('others volume snapshot created:', createdEc2Snapshot);
         }
-        
+
     } catch (err) {
         console.log(JSON.stringify(err));
         throw err;
@@ -206,7 +218,7 @@ function getVolumeId(volumeSource) {
 }
 
 exports.handler = async (event) => {
-    console.log(JSON.stringify(event));
+    console.log('Received event: ', JSON.stringify(event, null, 2));
     try {
         // Before we take snapshot, we need to stop the instace
         if (event.action === 'stopEc2Instances') {
