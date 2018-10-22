@@ -18,7 +18,7 @@ Run the function
 
 Pass AWS profile through CLI which is configured in your machine
 
-`node test.js --profile PROFILE --region REGION --functionName FUNCTION_NAME --input INPUT`
+`node run-locally.js --profile PROFILE --region REGION --functionName FUNCTION_NAME --input INPUT`
 
 NOTE: If there is no input for the function, you can pass `'{}'`.
 
