@@ -10,10 +10,15 @@ exports.updateConfig = function (profile, region) {
 
   var chain = new AWS.CredentialProviderChain();
 
-  chain.resolve((err, cred) => {
-    AWS.config.credentials = cred;
-  });
-
-
   AWS.config.update({ region: region });
+
+  return new Promise((resolve, reject) => {
+    chain.resolve((err, cred) => {
+      if(err) {
+        return reject(err);
+      }
+      AWS.config.credentials = cred;
+      resolve();
+    });
+  })
 }
