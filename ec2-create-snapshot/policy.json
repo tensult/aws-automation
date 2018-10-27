@@ -6,9 +6,10 @@
             "Effect": "Allow",
             "Action": [
                 "logs:CreateLogStream",
-                "ec2:DescribeInstances",
                 "sns:Publish",
+                "ec2:DescribeInstances",
                 "ec2:StartInstances",
+                "ec2:CreateTags",
                 "ec2:CreateSnapshot",
                 "ec2:DescribeSnapshots",
                 "ec2:StopInstances",
