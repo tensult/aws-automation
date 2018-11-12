@@ -29,7 +29,62 @@
             "Description": "WebServer EC2 instance type",
             "Type": "String",
             "Default": "t2.small",
-            "AllowedValues": ["t1.micro", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "c1.medium", "c1.xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", "c4.8xlarge", "g2.2xlarge", "g2.8xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "cr1.8xlarge", "cc2.8xlarge", "cg1.4xlarge"],
+            "AllowedValues": [
+                "t1.micro",
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m1.small",
+                "m1.medium",
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "c1.medium",
+                "c1.xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "g2.2xlarge",
+                "g2.8xlarge",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge",
+                "d2.xlarge",
+                "d2.2xlarge",
+                "d2.4xlarge",
+                "d2.8xlarge",
+                "hi1.4xlarge",
+                "hs1.8xlarge",
+                "cr1.8xlarge",
+                "cc2.8xlarge",
+                "cg1.4xlarge"
+            ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
         "KeyName": {
@@ -50,7 +105,14 @@
             "Description": "Name of the operating system ",
             "Type": "String",
             "Default": "Windows2016",
-            "AllowedValues": ["Windows2016", "Windows2012", "RedHat6", "CentOS6", "AmazonLinux2", "Ubuntu16"]
+            "AllowedValues": [
+                "Windows2016",
+                "Windows2012",
+                "RedHat6",
+                "CentOS6",
+                "AmazonLinux2",
+                "Ubuntu16"
+            ]
         },
         "InfraSecurityGroupId": {
             "Type": "AWS::EC2::SecurityGroup::Id",
@@ -71,7 +133,19 @@
             "Description": "RDS instance type",
             "Type": "String",
             "Default": "db.t2.small",
-            "AllowedValues": ["db.m5.large", "db.m5.xlarge", "db.m5.2xlarge", "db.m4.large", "db.m4.xlarge", "db.m4.2xlarge", "db.t2.micro", "db.t2.small", "db.t2.large", "db.t2.xlarge", "db.t2.2xlarge"],
+            "AllowedValues": [
+                "db.m5.large",
+                "db.m5.xlarge",
+                "db.m5.2xlarge",
+                "db.m4.large",
+                "db.m4.xlarge",
+                "db.m4.2xlarge",
+                "db.t2.micro",
+                "db.t2.small",
+                "db.t2.large",
+                "db.t2.xlarge",
+                "db.t2.2xlarge"
+            ],
             "ConstraintDescription": "must be a valid RDS instance type."
         },
         "DBName": {
@@ -104,6 +178,56 @@
             "Description": "Database port",
             "Type": "Number",
             "Default": "3306"
+        },
+        "AppHostName": {
+            "Description": "Application Host Name",
+            "Type": "String"
+        },
+        "ProjectName": {
+            "Description": "Project Name",
+            "Type": "String"
+        },
+        "ProjectCode": {
+            "Description": "Project Code",
+            "Type": "String"
+        },
+        "ChangeNumber": {
+            "Description": "Change Number",
+            "Type": "String"
+        },
+        "PrimaryOwnerEmail": {
+            "Description": "Primary owner email address to notify alerts",
+            "Type": "String",
+            "AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
+            "ConstraintDescription": "must be a valid email address."
+        },
+        "SecondaryOwnerEmail": {
+            "Description": "Secondary owner email address to notify alerts",
+            "Type": "String",
+            "AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
+            "ConstraintDescription": "must be a valid email address."
+        },
+        "ProvisionType": {
+            "Description": "Provision Type",
+            "Type": "String"
+        },
+        "ProvisionDate": {
+            "Description": "Provision Date",
+            "Type": "String",
+            "AllowedPattern": "^\\d{4}(-\\d{2}){2} (\\d{2}:){2}\\d{2}$"
+        },
+        "ExpiryDate": {
+            "Description": "Expiry Date",
+            "Type": "String",
+            "AllowedPattern": "^\\d{4}(-\\d{2}){2} (\\d{2}:){2}\\d{2}$"
+        },
+        "ServerRole": {
+            "Description": "Service Role",
+            "Type": "String"
+        },
+        "BusinessUnit": {
+            "Description": "Business Unit",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -126,16 +250,24 @@
                     "Ref": "VpcId"
                 },
                 "GroupDescription": {
-                    "Fn::Join": ["", [{
-                        "Ref": "AppName"
-                    }, "LoadBalancer security group"]]
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AppName"
+                            },
+                            "LoadBalancer security group"
+                        ]
+                    ]
                 },
-                "SecurityGroupIngress": [{
-                    "IpProtocol": "tcp",
-                    "FromPort": "443",
-                    "ToPort": "443",
-                    "CidrIp": "10.13.0.0/16"
-                }]
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "10.13.0.0/16"
+                    }
+                ]
             }
         },
         "WebServerSecurityGroup": {
@@ -145,11 +277,18 @@
                     "Ref": "VpcId"
                 },
                 "GroupDescription": {
-                    "Fn::Join": ["", [{
-                        "Ref": "AppName"
-                    }, "instance security group"]]
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AppName"
+                            },
+                            "instance security group"
+                        ]
+                    ]
                 },
-                "SecurityGroupIngress": [{
+                "SecurityGroupIngress": [
+                    {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
@@ -175,7 +314,9 @@
                     "Ref": "WebServerInstanceType"
                 },
                 "ImageId": {
-                    "Fn::FindInMap": ["AWSRegionArch2AMI", {
+                    "Fn::FindInMap": [
+                        "AWSRegionArch2AMI",
+                        {
                             "Ref": "AWS::Region"
                         },
                         {
@@ -183,28 +324,113 @@
                         }
                     ]
                 },
-                "NetworkInterfaces": [{
-                    "GroupSet": [{
-                        "Ref": "WebServerSecurityGroup"
-                    }, {
-                        "Ref": "InfraSecurityGroupId"
-                    }],
-                    "AssociatePublicIpAddress": "false",
-                    "DeviceIndex": "0",
-                    "DeleteOnTermination": "true",
-                    "SubnetId": {
-                        "Ref": "WebServerInstanceSubnetId"
+                "NetworkInterfaces": [
+                    {
+                        "GroupSet": [
+                            {
+                                "Ref": "WebServerSecurityGroup"
+                            },
+                            {
+                                "Ref": "InfraSecurityGroupId"
+                            }
+                        ],
+                        "AssociatePublicIpAddress": "false",
+                        "DeviceIndex": "0",
+                        "DeleteOnTermination": "true",
+                        "SubnetId": {
+                            "Ref": "WebServerInstanceSubnetId"
+                        }
                     }
-                }],
+                ],
                 "KeyName": {
                     "Ref": "KeyName"
                 },
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Ref": "AppName"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "AppName"
+                        }
+                    },
+                    {
+                        "Key": "HostName",
+                        "Value": {
+                            "Ref": "AppHostName"
+                        }
+                    },
+                    {
+                        "Key": "OS Type",
+                        "Value": {
+                            "Ref": "OSType"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": {
+                            "Ref": "AppName"
+                        }
+                    },
+                    {
+                        "Key": "Project Name",
+                        "Value": {
+                            "Ref": "ProjectName"
+                        }
+                    },
+                    {
+                        "Key": "Project Code",
+                        "Value": {
+                            "Ref": "ProjectCode"
+                        }
+                    },
+                    {
+                        "Key": "Change No",
+                        "Value": {
+                            "Ref": "ChangeNumber"
+                        }
+                    },
+                    {
+                        "Key": "Primary owner",
+                        "Value": {
+                            "Ref": "PrimaryOwnerEmail"
+                        }
+                    },
+                    {
+                        "Key": "Secondary owner",
+                        "Value": {
+                            "Ref": "SecondaryOwnerEmail"
+                        }
+                    },
+                    {
+                        "Key": "Provision Type",
+                        "Value": {
+                            "Ref": "ProvisionType"
+                        }
+                    },
+                    {
+                        "Key": "Provision Date",
+                        "Value": {
+                            "Ref": "ProvisionDate"
+                        }
+                    },
+                    {
+                        "Key": "Expiry Date",
+                        "Value": {
+                            "Ref": "ExpiryDate"
+                        }
+                    },
+                    {
+                        "Key": "Server Role",
+                        "Value": {
+                            "Ref": "ServerRole"
+                        }
+                    },
+                    {
+                        "Key": "Business Unit",
+                        "Value": {
+                            "Ref": "BusinessUnit"
+                        }
                     }
-                }]
+                ]
             }
         },
         "DBSecurityGroup": {
@@ -214,46 +440,65 @@
                     "Ref": "VpcId"
                 },
                 "GroupDescription": {
-                    "Fn::Join": ["", [{
-                        "Ref": "AppName"
-                    }, "DB security group"]]
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AppName"
+                            },
+                            "DB security group"
+                        ]
+                    ]
                 },
-                "SecurityGroupIngress": [{
-                    "IpProtocol": "tcp",
-                    "FromPort": {
-                        "Ref": "DBPort"
-                    },
-                    "ToPort": {
-                        "Ref": "DBPort"
-                    },
-                    "SourceSecurityGroupId": {
-                        "Ref": "WebServerSecurityGroup"
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": {
+                            "Ref": "DBPort"
+                        },
+                        "ToPort": {
+                            "Ref": "DBPort"
+                        },
+                        "SourceSecurityGroupId": {
+                            "Ref": "WebServerSecurityGroup"
+                        }
                     }
-                }]
+                ]
             }
         },
         "DBSubnetGroup": {
             "Type": "AWS::RDS::DBSubnetGroup",
             "Properties": {
                 "DBSubnetGroupDescription": {
-                    "Fn::Join": ["", [{
-                        "Ref": "AppName"
-                    }, "DB subnet group"]]
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AppName"
+                            },
+                            "DB subnet group"
+                        ]
+                    ]
                 },
                 "DBSubnetGroupName": {
                     "Ref": "AppName"
                 },
-                "SubnetIds": [{
-                    "Ref": "DBSubnetId1"
-                }, {
-                    "Ref": "DBSubnetId2"
-                }],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Ref": "AppName"
+                "SubnetIds": [
+                    {
+                        "Ref": "DBSubnetId1"
+                    },
+                    {
+                        "Ref": "DBSubnetId2"
                     }
-                }]
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "AppName"
+                        }
+                    }
+                ]
             }
         },
         "DBInstance": {
@@ -272,9 +517,11 @@
                 "DBSubnetGroupName": {
                     "Ref": "DBSubnetGroup"
                 },
-                "VPCSecurityGroups": [{
-                    "Ref": "DBSecurityGroup"
-                }],
+                "VPCSecurityGroups": [
+                    {
+                        "Ref": "DBSecurityGroup"
+                    }
+                ],
                 "Engine": "MySQL",
                 "EngineVersion": "5.6.41",
                 "MasterUsername": {
@@ -295,42 +542,49 @@
                     "Ref": "AppName"
                 },
                 "Scheme": "internet-facing",
-                "SecurityGroups": [{
-                    "Ref": "AppLoadBalancerSecurityGroup"
-                }],
-                "Subnets": [{
+                "SecurityGroups": [
+                    {
+                        "Ref": "AppLoadBalancerSecurityGroup"
+                    }
+                ],
+                "Subnets": [
+                    {
                         "Ref": "LoadBalancerSubnetId1"
                     },
                     {
                         "Ref": "LoadBalancerSubnetId2"
                     }
                 ],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Ref": "AppName"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "AppName"
+                        }
                     }
-                }],
+                ],
                 "Type": "application"
             }
         },
         "AppLoadBalancerTargetGroup": {
-            "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
-            "Properties" : {
-              "Name" : {
-                  "Ref": "AppName"
-              },
-              "Port" : "80",
-              "Protocol" : "HTTP",
-              "Targets" : [ {
-                  "Id": {
-                      "Ref": "WebServerInstance"
-                  }
-              } ],
-              "VpcId" : {
-                 "Ref": "VpcId"
-              }
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Name": {
+                    "Ref": "AppName"
+                },
+                "Port": "80",
+                "Protocol": "HTTP",
+                "Targets": [
+                    {
+                        "Id": {
+                            "Ref": "WebServerInstance"
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
             }
-          }
+        }
     }
 }
