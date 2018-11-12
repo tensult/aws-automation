@@ -109,8 +109,8 @@
     "Mappings": {
         "AWSRegionArch2AMI": {
             "ap-south-1": {
-                "Windows2016": "ami-04377cb6419764e84",
-                "Windows2012": "ami-04377cb6419764e84",
+                "Windows2016": "ami-0288801f302f4b6c6",
+                "Windows2012": "ami-02458485d424b9c17",
                 "RedHat6": "ami-04377cb6419764e84",
                 "CentOS6": "ami-04377cb6419764e84",
                 "AmazonLinux2": "ami-04377cb6419764e84",
