@@ -313,6 +313,24 @@
                 }],
                 "Type": "application"
             }
-        }
+        },
+        "AppLoadBalancerTargetGroup": {
+            "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties" : {
+              "Name" : {
+                  "Ref": "AppName"
+              },
+              "Port" : "80",
+              "Protocol" : "HTTP",
+              "Targets" : [ {
+                  "Id": {
+                      "Ref": "WebServerInstance"
+                  }
+              } ],
+              "VpcId" : {
+                 "Ref": "VpcId"
+              }
+            }
+          }
     }
 }
