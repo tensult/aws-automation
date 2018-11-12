@@ -259,6 +259,9 @@
         "DBInstance": {
             "Type": "AWS::RDS::DBInstance",
             "Properties": {
+                "DBInstanceIdentifier": {
+                    "Ref": "AppName"
+                },
                 "DBName": {
                     "Ref": "DBName"
                 },
