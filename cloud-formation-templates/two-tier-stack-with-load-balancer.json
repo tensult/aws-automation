@@ -212,16 +212,14 @@
             "Type": "String"
         },
         "ProvisionDate": {
-            "Description": "Provision Date",
+            "Description": "Date format: 2018/11/13",
             "Type": "String",
-            "AllowedPattern": "^\\d{4}(-\\d{2}){2}$",
-            "ConstraintDescription": "Date format: 2018/11/13"       
+            "AllowedPattern": "^\\d{4}(-\\d{2}){2}$"
         },
         "ExpiryDate": {
-            "Description": "Expiry Date",
+            "Description": "Date format: 2018/11/13",
             "Type": "String",
-            "AllowedPattern": "^\\d{4}(-\\d{2}){2}$",
-            "ConstraintDescription": "Date format: 2018/11/13"
+            "AllowedPattern": "^\\d{4}(-\\d{2}){2}$"
         },
         "ServerRole": {
             "Description": "Service Role",
