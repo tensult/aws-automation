@@ -212,12 +212,12 @@
             "Type": "String"
         },
         "ProvisionDate": {
-            "Description": "Date format: 2018/11/13",
+            "Description": "Date format: 2018-11-13",
             "Type": "String",
             "AllowedPattern": "^\\d{4}(-\\d{2}){2}$"
         },
         "ExpiryDate": {
-            "Description": "Date format: 2018/11/13",
+            "Description": "Date format: 2018-11-13",
             "Type": "String",
             "AllowedPattern": "^\\d{4}(-\\d{2}){2}$"
         },
