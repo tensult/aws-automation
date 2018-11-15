@@ -158,6 +158,15 @@
         "BusinessUnit": {
             "Description": "Business Unit",
             "Type": "String"
+        },
+        "Snapshot": {
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "Default": "false",
+            "Description": "To know shapshot is enabled or not ?",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -210,87 +219,93 @@
                 },
                 "Tags": [
                     {
-                        "Key": "Name",
+                        "Key": "name",
                         "Value": {
                             "Ref": "AppName"
                         }
                     },
                     {
-                        "Key": "HostName",
+                        "Key": "hostname",
                         "Value": {
                             "Ref": "AppHostName"
                         }
                     },
                     {
-                        "Key": "OS Type",
+                        "Key": "os_type",
                         "Value": {
                             "Ref": "OSType"
                         }
                     },
                     {
-                        "Key": "Application",
+                        "Key": "application",
                         "Value": {
                             "Ref": "AppName"
                         }
                     },
                     {
-                        "Key": "Project Name",
+                        "Key": "project_name",
                         "Value": {
                             "Ref": "ProjectName"
                         }
                     },
                     {
-                        "Key": "Project Code",
+                        "Key": "project_code",
                         "Value": {
                             "Ref": "ProjectCode"
                         }
                     },
                     {
-                        "Key": "Change No",
+                        "Key": "change_no",
                         "Value": {
                             "Ref": "ChangeNumber"
                         }
                     },
                     {
-                        "Key": "Primary owner",
+                        "Key": "primary_owner",
                         "Value": {
                             "Ref": "PrimaryOwnerEmail"
                         }
                     },
                     {
-                        "Key": "Secondary owner",
+                        "Key": "secondary_owner",
                         "Value": {
                             "Ref": "SecondaryOwnerEmail"
                         }
                     },
                     {
-                        "Key": "Provision Type",
+                        "Key": "provision_type",
                         "Value": {
                             "Ref": "ProvisionType"
                         }
                     },
                     {
-                        "Key": "Provision Date",
+                        "Key": "provision_date",
                         "Value": {
                             "Ref": "ProvisionDate"
                         }
                     },
                     {
-                        "Key": "Expiry Date",
+                        "Key": "expiry_date",
                         "Value": {
                             "Ref": "ExpiryDate"
                         }
                     },
                     {
-                        "Key": "Server Role",
+                        "Key": "server_role",
                         "Value": {
                             "Ref": "ServerRole"
                         }
                     },
                     {
-                        "Key": "Business Unit",
+                        "Key": "business_unit",
                         "Value": {
                             "Ref": "BusinessUnit"
+                        }
+                    },
+                    {
+                        "Key": "snapshot",
+                        "Value": {
+                            "Ref": "Snapshot"
                         }
                     }
                 ]
