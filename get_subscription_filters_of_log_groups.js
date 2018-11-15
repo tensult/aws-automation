@@ -17,11 +17,10 @@ if (!cliArgs.profile ||
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const cloudwatchLogs = new AWS.CloudWatchLogs();
-
 async function getLogGroupSubscriptionFilter() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const cloudwatchLogs = new AWS.CloudWatchLogs();
+
     let isCompleted = false;
     let nextToken = undefined;
     while (!isCompleted) {

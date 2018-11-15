@@ -17,15 +17,16 @@ if (!cliArgs.profile || !cliArgs.region || !cliArgs.envVarName) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
-const lambda = new AWS.Lambda();
 const filterRegex = new RegExp(cliArgs.filterName);
 
 let isCompleted = false;
 let nextToken = undefined;
 
 async function getEnvironmentVariable() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const lambda = new AWS.Lambda();
+
     while (!isCompleted) {
         try {
             const response = await lambda.listFunctions({
@@ -37,8 +38,8 @@ async function getEnvironmentVariable() {
                     if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         continue;
                     }
-                   
-                    if(fn.Environment && fn.Environment.Variables && fn.Environment.Variables[cliArgs.envVarName]) {
+
+                    if (fn.Environment && fn.Environment.Variables && fn.Environment.Variables[cliArgs.envVarName]) {
                         console.log(`${fn.FunctionName} has Environment variable: ${cliArgs.envVarName} with value: ${fn.Environment.Variables[cliArgs.envVarName]}`);
                     } else {
                         console.log(`${fn.FunctionName} does not have Environment variable: ${cliArgs.envVarName}`);

@@ -18,15 +18,15 @@ if (!cliArgs.profile || !cliArgs.region || !cliArgs.envVarName) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
-const lambda = new AWS.Lambda();
 const filterRegex = new RegExp(cliArgs.filterName);
 
 let isCompleted = false;
 let nextToken = undefined;
 
 async function seFunctionEnvVar() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const lambda = new AWS.Lambda();
     while (!isCompleted) {
         try {
             const response = await lambda.listFunctions({

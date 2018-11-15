@@ -17,9 +17,7 @@ if (!cliArgs.profile ||
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const cloudwatchLogs = new AWS.CloudWatchLogs();
+let cloudwatchLogs;
 
 async function getSubscriptionFilters(logGroupName) {
     let subscriptionFilters = [];
@@ -43,6 +41,8 @@ async function getSubscriptionFilters(logGroupName) {
 }
 
 async function removeLogGroupSubscriptionFilters() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    cloudwatchLogs = new AWS.CloudWatchLogs();
     let isCompleted = false;
     let nextToken = undefined;
     while (!isCompleted) {

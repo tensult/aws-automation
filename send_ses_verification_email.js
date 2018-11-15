@@ -19,9 +19,7 @@ async function sendVerificationEmail() {
 
     try {
         await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-        const ses = new AWS.SES({
-            region: cliArgs.region
-        });
+        const ses = new AWS.SES();
         return await ses.verifyEmailIdentity({
             EmailAddress: cliArgs.email
         }).promise();

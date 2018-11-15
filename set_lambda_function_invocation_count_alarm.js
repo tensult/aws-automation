@@ -23,17 +23,15 @@ if (!cliArgs.profile || !cliArgs.region || !cliArgs.alarmActionArn) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const lambda = new AWS.Lambda();
-const cloudwatch = new AWS.CloudWatch();
-
 const filterRegex = new RegExp(cliArgs.filterName);
 
 let isCompleted = false;
 let nextToken = undefined;
 
 async function setFunctionInvocationAlarms() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const lambda = new AWS.Lambda();
+    const cloudwatch = new AWS.CloudWatch();
     while (!isCompleted) {
         try {
             const response = await lambda.listFunctions({

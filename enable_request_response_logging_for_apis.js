@@ -17,9 +17,7 @@ if (!cliArgs.profile || !cliArgs.region) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const ApiGateway = new AWS.APIGateway();
+let ApiGateway;
 
 function isEmpty(obj) {
     for (let prop in obj) {
@@ -32,7 +30,8 @@ function isEmpty(obj) {
 // Deploy api to stage
 function createDeployment(restApiId, stageName) {
     var params = {
-        restApiId, /* required */
+        restApiId,
+        /* required */
         stageName
     };
     return ApiGateway.createDeployment(params).promise();
@@ -40,15 +39,15 @@ function createDeployment(restApiId, stageName) {
 
 function updateStage(restApiId, stageName) {
     const params = {
-        restApiId, /* required */
-        stageName, /* required */
-        patchOperations: [
-            {
-                op: 'replace',
-                path: '/*/*/logging/dataTrace',
-                value: "true"
-            }
-        ]
+        restApiId,
+        /* required */
+        stageName,
+        /* required */
+        patchOperations: [{
+            op: 'replace',
+            path: '/*/*/logging/dataTrace',
+            value: "true"
+        }]
     };
     return ApiGateway.updateStage(params).promise();
 }
@@ -71,12 +70,16 @@ function getRestApis() {
 // Get info anout stage resource of api
 function getStages(restApiId) {
     const params = {
-        restApiId, /* required */
+        restApiId,
+        /* required */
     };
     return ApiGateway.getStages(params).promise();
 }
 
 async function enableRequestLogging() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    ApiGateway = new AWS.APIGateway();
+
     try {
         const restApis = await getRestApis();
         for (let i = 0; i < restApis.items.length; i++) {
