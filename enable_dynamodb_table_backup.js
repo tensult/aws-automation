@@ -14,18 +14,17 @@ const cliArgs = cli.parse({
     tablePrefix: ['t', 'dynamodb table prefix', 'string'],
 });
 
-if(!cliArgs.profile || !cliArgs.region) {
+if (!cliArgs.profile || !cliArgs.region) {
     cli.getUsage();
 }
-
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const dynamodb = new AWS.DynamoDB();
 
 let isCompleted = false;
 let nextToken = undefined;
 
 async function enableTableBackup() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const dynamodb = new AWS.DynamoDB();
+
     while (!isCompleted) {
         try {
             const response = await dynamodb.listTables({
@@ -34,7 +33,7 @@ async function enableTableBackup() {
             if (response.TableNames) {
                 for (i = 0; i < response.TableNames.length; i++) {
                     const tableName = response.TableNames[i];
-                    if(cliArgs.tablePrefix && !tableName.startsWith(cliArgs.tablePrefix)) {
+                    if (cliArgs.tablePrefix && !tableName.startsWith(cliArgs.tablePrefix)) {
                         console.log("Skipping table", tableName);
                         continue;
                     }

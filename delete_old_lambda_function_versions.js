@@ -19,9 +19,7 @@ if (!cliArgs.profile || !cliArgs.region || cliArgs.maxVersions < 1) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const lambda = new AWS.Lambda();
+let lambda;
 const filterRegex = new RegExp(cliArgs.filterName);
 
 async function getFunctionVersions(functionName) {
@@ -54,6 +52,8 @@ async function getFunctionVersions(functionName) {
 }
 
 async function deleteFunctionVersions() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    lambda = new AWS.Lambda();
     let isCompleted = false;
     let nextToken = undefined;
     while (!isCompleted) {

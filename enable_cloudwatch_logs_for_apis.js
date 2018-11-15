@@ -11,7 +11,7 @@ const awsConfigHelper = require('./util/awsConfigHelper');
 const cliArgs = cli.parse({
     profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
-    logLevel: ['l', 'Log level', 'string', 'INFO'] 
+    logLevel: ['l', 'Log level', 'string', 'INFO']
 });
 
 if (!cliArgs.profile || !cliArgs.region) {
@@ -20,7 +20,7 @@ if (!cliArgs.profile || !cliArgs.region) {
 
 awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
 
-const ApiGateway = new AWS.APIGateway();
+let ApiGateway;
 
 function isEmpty(obj) {
     for (let prop in obj) {
@@ -81,7 +81,10 @@ function getStages(restApiId) {
 }
 
 async function enableCloudWatchLogsHandler() {
+
     try {
+        await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+        ApiGateway = new AWS.APIGateway();
         const restApis = await getRestApis();
         console.log('Rest APIs: ', restApis);
         for (let i = 0; i < restApis.items.length; i++) {

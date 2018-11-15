@@ -19,12 +19,12 @@ if (!cliArgs.profile || !cliArgs.region || !cliArgs.aliasName) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const lambda = new AWS.Lambda();
 const filterRegex = new RegExp(cliArgs.filterName);
 
-async function deletefunctionAlias() {
+async function deleteFunctionAlias() {
+    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    const lambda = new AWS.Lambda();
+
     let isCompleted = false;
     let nextToken = undefined;
     while (!isCompleted) {
@@ -38,13 +38,13 @@ async function deletefunctionAlias() {
                     if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         continue;
                     }
-                    try{
+                    try {
                         await lambda.deleteAlias({
                             FunctionName: fn.FunctionName,
                             Name: cliArgs.aliasName
                         }).promise();
                         console.log(`Deleted alias: ${cliArgs.aliasName} for function: ${fn.FunctionName}`);
-                    } catch(error) {
+                    } catch (error) {
                         console.log(`No alias: ${cliArgs.aliasName} for function: ${fn.FunctionName}`);
                     }
                     await wait(1000);
@@ -64,4 +64,4 @@ async function deletefunctionAlias() {
         }
     }
 }
-deletefunctionAlias();
+deleteFunctionAlias();

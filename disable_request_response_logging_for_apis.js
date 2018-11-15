@@ -17,9 +17,7 @@ if (!cliArgs.profile || !cliArgs.region) {
     cli.getUsage();
 }
 
-awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
-
-const ApiGateway = new AWS.APIGateway();
+let ApiGateway;
 
 function isEmpty(obj) {
     for (let prop in obj) {
@@ -78,6 +76,8 @@ function getStages(restApiId) {
 
 async function disableRequestLogging() {
     try {
+        await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+        ApiGateway = new AWS.APIGateway();
         const restApis = await getRestApis();
         for (let i = 0; i < restApis.items.length; i++) {
             const stages = await getStages(restApis.items[i].id);
