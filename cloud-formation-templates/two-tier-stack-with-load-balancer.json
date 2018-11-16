@@ -87,6 +87,10 @@
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
+        "WebServerInstanceRole": {
+            "Description": "Role ARN for web server instance",
+            "Type": "String"
+        },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
             "Type": "AWS::EC2::KeyPair::KeyName",
@@ -221,8 +225,8 @@
             "Type": "String",
             "AllowedPattern": "^\\d{4}(-\\d{2}){2}$"
         },
-        "ServerRole": {
-            "Description": "Service Role",
+        "ServerRoleTag": {
+            "Description": "Service role tag",
             "Type": "String"
         },
         "BusinessUnit": {
@@ -321,6 +325,9 @@
             "Properties": {
                 "InstanceType": {
                     "Ref": "WebServerInstanceType"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "WebServerInstanceRole"
                 },
                 "ImageId": {
                     "Fn::FindInMap": [
@@ -430,7 +437,7 @@
                     {
                         "Key": "server_role",
                         "Value": {
-                            "Ref": "ServerRole"
+                            "Ref": "ServerRoleTag"
                         }
                     },
                     {
@@ -438,14 +445,13 @@
                         "Value": {
                             "Ref": "BusinessUnit"
                         }
-                    }, {
-                        "Key" : "snapshot",
-                        "Value" :{
-
-                            "Ref" : "Snapshot"
+                    },
+                    {
+                        "Key": "snapshot",
+                        "Value": {
+                            "Ref": "Snapshot"
                         }
                     }
-
                 ]
             }
         },
