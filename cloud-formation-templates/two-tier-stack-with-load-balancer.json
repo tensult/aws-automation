@@ -171,7 +171,7 @@
         },
         "DBPassword": {
             "NoEcho": "true",
-            "Description": "The database admin account password",
+            "Description": "Master Password must be at least eight characters long, as in “mypassword”. Can be any printable ASCII character except “/”, “”, or “@”",
             "Type": "String",
             "MinLength": "8",
             "MaxLength": "41",
@@ -363,7 +363,7 @@
                 },
                 "Tags": [
                     {
-                        "Key": "name",
+                        "Key": "Name",
                         "Value": {
                             "Ref": "AppName"
                         }
