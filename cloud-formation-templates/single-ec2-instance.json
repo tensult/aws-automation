@@ -91,7 +91,7 @@
             "Type": "String",
             "MinLength": "9",
             "MaxLength": "18",
-            "Default": "10.13.0.0/16",
+            "Default": "10.13.0.0/17",
             "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
             "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
         },
@@ -178,10 +178,10 @@
             "ap-south-1": {
                 "Windows2016": "ami-0288801f302f4b6c6",
                 "Windows2012": "ami-05c8869cb862ef323",
-                "RedHat6": "ami-0d63e0844aae02845",
+                "RedHat6": "ami-006e87110ec172a0c",
                 "CentOS6": "ami-0ec3dab6fe2a3d13a",
-                "AmazonLinux2": "ami-0d63e0844aae02845",
-                "Ubuntu16": "ami-02b04a38bb6c3f9e4"
+                "AmazonLinux2": "ami-0d32fb3a52e28d14c",
+                "Ubuntu16": "ami-0065ec397c1aac784" 
             }
         }
     },
