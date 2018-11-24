@@ -1,8 +1,8 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Parameters": {
-        "AppName": {
-            "Description": "Application Name",
+        "Application": {
+            "Description": "Friendly Name to be displayed in Console",
             "Type": "String"
         },
         "VpcId": {
@@ -20,66 +20,68 @@
             "Type": "String",
             "Default": "t2.small",
             "AllowedValues": [
-                "t1.micro",
                 "t2.nano",
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
+                "c5.large",
                 "t2.large",
-                "m1.small",
-                "m1.medium",
-                "m1.large",
-                "m1.xlarge",
-                "m2.xlarge",
-                "m2.2xlarge",
-                "m2.4xlarge",
-                "m3.medium",
-                "m3.large",
-                "m3.xlarge",
-                "m3.2xlarge",
-                "m4.large",
-                "m4.xlarge",
-                "m4.2xlarge",
-                "m4.4xlarge",
-                "m4.10xlarge",
-                "c1.medium",
-                "c1.xlarge",
-                "c3.large",
-                "c3.xlarge",
-                "c3.2xlarge",
-                "c3.4xlarge",
-                "c3.8xlarge",
                 "c4.large",
-                "c4.xlarge",
-                "c4.2xlarge",
-                "c4.4xlarge",
-                "c4.8xlarge",
-                "g2.2xlarge",
-                "g2.8xlarge",
+                "m5.large",
+                "m4.large",
+                "r4.large",
+                "c5.xlarge",
+                "i3.large",
                 "r3.large",
+                "t2.xlarge",
+                "c4.xlarge",
+                "m5.xlarge",
+                "m4.xlarge",
+                "r4.xlarge",
+                "c5.2xlarge",
+                "i3.xlarge",
                 "r3.xlarge",
+                "t2.2xlarge",
+                "c4.2xlarge",
+                "m5.2xlarge",
+                "m4.2xlarge",
+                "r4.2xlarge",
+                "c5.4xlarge",
+                "i3.2xlarge",
                 "r3.2xlarge",
-                "r3.4xlarge",
-                "r3.8xlarge",
-                "i2.xlarge",
-                "i2.2xlarge",
-                "i2.4xlarge",
-                "i2.8xlarge",
+                "c4.4xlarge",
+                "m5.4xlarge",
                 "d2.xlarge",
+                "m4.4xlarge",
+                "i2.xlarge",
+                "r4.4xlarge",
+                "i3.4xlarge",
+                "r3.4xlarge",
+                "c5.9xlarge",
+                "c4.8xlarge",
                 "d2.2xlarge",
+                "p2.xlarge",
+                "i2.2xlarge",
+                "m4.10xlarge",
+                "r4.8xlarge",
+                "m5.12xlarge",
+                "i3.8xlarge",
+                "r3.8xlarge",
+                "c5.18xlarge",
                 "d2.4xlarge",
+                "m4.16xlarge",
+                "i2.4xlarge",
+                "r4.16xlarge",
+                "m5.24xlarge",
+                "i3.16xlarge",
                 "d2.8xlarge",
-                "hi1.4xlarge",
-                "hs1.8xlarge",
-                "cr1.8xlarge",
-                "cc2.8xlarge",
-                "cg1.4xlarge"
+                "i2.8xlarge"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
-        "WebServerInstanceRole": {
-            "Description": "Role ARN for web server instance",
-            "Type": "String"
+        "WebServerInstanceProfileRole": {
+            "Description": "IAM Role ARN for web server instance. Suggested Role is 'EC2-Managed-Instance-Profile' ",
+            "Default": "EC2-Managed-Instance-Profile"
         },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
@@ -113,8 +115,8 @@
             "Description": "SecurityGroupId of an existing security group in your Virtual Private Cloud (VPC)",
             "ConstraintDescription": "must be an existing security group in the selected Virtual Private Cloud."
         },
-        "AppHostName": {
-            "Description": "Application Host Name",
+        "WebserverHostName": {
+            "Description": "Host Name to be used to join AD",
             "Type": "String"
         },
         "ProjectName": {
@@ -169,7 +171,7 @@
                 "false"
             ],
             "Default": "false",
-            "Description": "To know shapshot is enabled or not ?",
+            "Description": "Do you want to enable backup or not?",
             "Type": "String"
         }
     },
@@ -181,7 +183,7 @@
                 "RedHat6": "ami-006e87110ec172a0c",
                 "CentOS6": "ami-0ec3dab6fe2a3d13a",
                 "AmazonLinux2": "ami-0d32fb3a52e28d14c",
-                "Ubuntu16": "ami-0065ec397c1aac784" 
+                "Ubuntu16": "ami-0065ec397c1aac784"
             }
         }
     },
@@ -206,35 +208,30 @@
                         }
                     ]
                 },
-                "NetworkInterfaces": [
-                    {
-                        "GroupSet": [
-                            {
-                                "Ref": "InfraSecurityGroupId"
-                            }
-                        ],
-                        "AssociatePublicIpAddress": "false",
-                        "DeviceIndex": "0",
-                        "DeleteOnTermination": "true",
-                        "SubnetId": {
-                            "Ref": "WebServerInstanceSubnetId"
-                        }
+                "NetworkInterfaces": [{
+                    "GroupSet": [{
+                        "Ref": "InfraSecurityGroupId"
+                    }],
+                    "AssociatePublicIpAddress": "false",
+                    "DeviceIndex": "0",
+                    "DeleteOnTermination": "true",
+                    "SubnetId": {
+                        "Ref": "WebServerInstanceSubnetId"
                     }
-                ],
+                }],
                 "KeyName": {
                     "Ref": "KeyName"
                 },
-                "Tags": [
-                    {
+                "Tags": [{
                         "Key": "Name",
                         "Value": {
-                            "Ref": "AppName"
+                            "Ref": "Application"
                         }
                     },
                     {
                         "Key": "hostname",
                         "Value": {
-                            "Ref": "AppHostName"
+                            "Ref": "WebserverHostName"
                         }
                     },
                     {
