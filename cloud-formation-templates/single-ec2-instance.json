@@ -80,7 +80,8 @@
             "ConstraintDescription": "must be a valid EC2 instance type."
         },
         "WebServerInstanceProfileRole": {
-            "Description": "IAM Role ARN for web server instance. Suggested Role is 'EC2-Managed-Instance-Profile' ",
+            "Description": "IAM Role for web server instance. Suggested Role is 'EC2-Managed-Instance-Profile' ",
+            "Type": "String",           
             "Default": "EC2-Managed-Instance-Profile"
         },
         "KeyName": {
@@ -175,6 +176,47 @@
             "Type": "String"
         }
     },
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Webserver Configuration"
+                    },
+                    "Parameters": [
+                        "VpcId",
+                        "WebServerInstanceSubnetId",
+                        "WebServerInstanceType",
+                        "KeyName",
+                        "InfraSecurityGroupId",
+                        "SSHLocation",
+                        "WebServerInstanceProfileRole"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Webserver Tags"
+                    },
+                    "Parameters": [
+                        "Application",
+                        "WebserverHostName",
+                        "OSType",
+                        "ProjectName",
+                        "ProjectCode",
+                        "ExpiryDate",
+                        "Snapshot",
+                        "PrimaryOwnerEmail",
+                        "SecondaryOwnerEmail",
+                        "ChangeNumber",
+                        "ProvisionType",
+                        "ProvisionDate",
+                        "ServerRoleTag",
+                        "BusinessUnit"
+                    ]
+                }
+            ]
+        }
+    },
     "Mappings": {
         "AWSRegionArch2AMI": {
             "ap-south-1": {
@@ -195,7 +237,7 @@
                     "Ref": "WebServerInstanceType"
                 },
                 "IamInstanceProfile": {
-                    "Ref": "WebServerInstanceRole"
+                    "Ref": "WebServerInstanceProfileRole"
                 },
                 "ImageId": {
                     "Fn::FindInMap": [
@@ -243,7 +285,7 @@
                     {
                         "Key": "application",
                         "Value": {
-                            "Ref": "AppName"
+                            "Ref": "Application"
                         }
                     },
                     {
