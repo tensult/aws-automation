@@ -81,7 +81,7 @@
         },
         "WebServerInstanceProfileRole": {
             "Description": "IAM Role for web server instance. Suggested Role is 'EC2-Managed-Instance-Profile' ",
-            "Type": "String",           
+            "Type": "String",
             "Default": "EC2-Managed-Instance-Profile"
         },
         "KeyName": {
@@ -105,10 +105,10 @@
             "AllowedValues": [
                 "Windows2016",
                 "Windows2012",
-                "RedHat6",
-                "CentOS6",
+                "RedHat",
+                "CentOS",
                 "AmazonLinux2",
-                "Ubuntu16"
+                "Ubuntu"
             ]
         },
         "InfraSecurityGroupId": {
@@ -178,8 +178,7 @@
     },
     "Metadata": {
         "AWS::CloudFormation::Interface": {
-            "ParameterGroups": [
-                {
+            "ParameterGroups": [{
                     "Label": {
                         "default": "Webserver Configuration"
                     },
