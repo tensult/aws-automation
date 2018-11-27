@@ -221,10 +221,10 @@
             "ap-south-1": {
                 "Windows2016": "ami-0288801f302f4b6c6",
                 "Windows2012": "ami-05c8869cb862ef323",
-                "RedHat6": "ami-006e87110ec172a0c",
-                "CentOS6": "ami-0ec3dab6fe2a3d13a",
+                "RedHat": "ami-006e87110ec172a0c",
+                "CentOS": "ami-0ec3dab6fe2a3d13a",
                 "AmazonLinux2": "ami-0d32fb3a52e28d14c",
-                "Ubuntu16": "ami-0065ec397c1aac784"
+                "Ubuntu": "ami-0065ec397c1aac784"
             }
         }
     },
