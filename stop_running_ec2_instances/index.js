@@ -39,7 +39,7 @@ function filterStoppableEc2InstanceIds(ec2Reservations) {
         return allInstances;
     }, []).filter((instance) => {
         return !instance.Tags || !instance.Tags.find((tag) => {
-            return tag.Key.toLowerCase() === 'donotstop'
+            return tag.Key.toLowerCase() === 'donotstop' && tag.Value.toLowerCase() === "false";
         });
     }).map((instance) => {
         return instance.InstanceId;
