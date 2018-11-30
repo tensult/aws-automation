@@ -361,7 +361,7 @@
                      {
                         "Key": "donotstop",
                         "Value": {
-                            "Ref": "Snapshot"
+                            "Ref": "Donotstop"
                         }
                     }
                 ]
