@@ -186,6 +186,17 @@
             "Type": "Number",
             "Default": "3306"
         },
+        "DBEngine": {
+            "Description": "Database engine",
+            "AllowedValues": [
+                "MySQL56",
+                "MySQL57",
+                "MSSQL2012",
+                "MSSQL2016"
+            ],
+            "Type": "String",
+            "Default": "MySQL57"
+        },
         "WebserverHostName": {
             "Description": "Host Name to be used to join AD",
             "Type": "String"
@@ -244,11 +255,16 @@
             "Default": "false",
             "Description": "Do you want to enable backup or not?",
             "Type": "String"
+        },
+        "Donotstop": {
+            "Description": "Set to true if you want the instance running 24/7. If false, instance will be stopped in the night",
+            "Type": "String"
         }
     },
     "Metadata": {
         "AWS::CloudFormation::Interface": {
-            "ParameterGroups": [{
+            "ParameterGroups": [
+                {
                     "Label": {
                         "default": "Webserver Configuration"
                     },
@@ -283,7 +299,8 @@
                         "DBUser",
                         "DBName",
                         "DBPassword",
-                        "DBPort"
+                        "DBPort",
+                        "DBEngine"
                     ]
                 },
                 {
@@ -299,6 +316,7 @@
                         "ExpiryDate",
                         "PrimaryOwnerEmail",
                         "SecondaryOwnerEmail",
+                        "Donotstop",
                         "ChangeNumber",
                         "ProvisionType",
                         "ProvisionDate",
@@ -319,6 +337,22 @@
                 "AmazonLinux2": "ami-0d32fb3a52e28d14c",
                 "Ubuntu": "ami-0065ec397c1aac784"
             }
+        },
+        "DBEngines": {
+            "ap-south-1": {
+                "MySQL56": "mysql",
+                "MySQL57": "mysql",
+                "MSSQL2012": "sqlserver-se",
+                "MSSQL2016": "sqlserver-se"
+            }
+        },
+        "DBVersions": {
+            "ap-south-1": {
+                "MySQL56": "5.6.41",
+                "MySQL57": "5.7.23",
+                "MSSQL2012": "14.00.3035.2.v1",
+                "MSSQL2016": "13.00.5201.2.v1"
+            }
         }
     },
     "Resources": {
@@ -331,19 +365,22 @@
                 "GroupDescription": {
                     "Fn::Join": [
                         "",
-                        [{
+                        [
+                            {
                                 "Ref": "Application"
                             },
                             "LoadBalancer security group"
                         ]
                     ]
                 },
-                "SecurityGroupIngress": [{
-                    "IpProtocol": "tcp",
-                    "FromPort": "443",
-                    "ToPort": "443",
-                    "CidrIp": "10.13.0.0/16"
-                }]
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "10.13.0.0/16"
+                    }
+                ]
             }
         },
         "WebServerSecurityGroup": {
@@ -355,14 +392,16 @@
                 "GroupDescription": {
                     "Fn::Join": [
                         "",
-                        [{
+                        [
+                            {
                                 "Ref": "Application"
                             },
                             "instance security group"
                         ]
                     ]
                 },
-                "SecurityGroupIngress": [{
+                "SecurityGroupIngress": [
+                    {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
@@ -401,25 +440,29 @@
                         }
                     ]
                 },
-                "NetworkInterfaces": [{
-                    "GroupSet": [{
-                            "Ref": "WebServerSecurityGroup"
-                        },
-                        {
-                            "Ref": "InfraSecurityGroupId"
+                "NetworkInterfaces": [
+                    {
+                        "GroupSet": [
+                            {
+                                "Ref": "WebServerSecurityGroup"
+                            },
+                            {
+                                "Ref": "InfraSecurityGroupId"
+                            }
+                        ],
+                        "AssociatePublicIpAddress": "false",
+                        "DeviceIndex": "0",
+                        "DeleteOnTermination": "true",
+                        "SubnetId": {
+                            "Ref": "WebServerInstanceSubnetId"
                         }
-                    ],
-                    "AssociatePublicIpAddress": "false",
-                    "DeviceIndex": "0",
-                    "DeleteOnTermination": "true",
-                    "SubnetId": {
-                        "Ref": "WebServerInstanceSubnetId"
                     }
-                }],
+                ],
                 "KeyName": {
                     "Ref": "KeyName"
                 },
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Ref": "Application"
@@ -508,6 +551,12 @@
                         "Value": {
                             "Ref": "Snapshot"
                         }
+                    },
+                    {
+                        "Key": "donotstop",
+                        "Value": {
+                            "Ref": "Donotstop"
+                        }
                     }
                 ]
             }
@@ -521,25 +570,28 @@
                 "GroupDescription": {
                     "Fn::Join": [
                         "",
-                        [{
+                        [
+                            {
                                 "Ref": "Application"
                             },
                             "DB security group"
                         ]
                     ]
                 },
-                "SecurityGroupIngress": [{
-                    "IpProtocol": "tcp",
-                    "FromPort": {
-                        "Ref": "DBPort"
-                    },
-                    "ToPort": {
-                        "Ref": "DBPort"
-                    },
-                    "SourceSecurityGroupId": {
-                        "Ref": "WebServerSecurityGroup"
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": {
+                            "Ref": "DBPort"
+                        },
+                        "ToPort": {
+                            "Ref": "DBPort"
+                        },
+                        "SourceSecurityGroupId": {
+                            "Ref": "WebServerSecurityGroup"
+                        }
                     }
-                }]
+                ]
             }
         },
         "DBSubnetGroup": {
@@ -548,7 +600,8 @@
                 "DBSubnetGroupDescription": {
                     "Fn::Join": [
                         "",
-                        [{
+                        [
+                            {
                                 "Ref": "Application"
                             },
                             "DB subnet group"
@@ -558,19 +611,22 @@
                 "DBSubnetGroupName": {
                     "Ref": "Application"
                 },
-                "SubnetIds": [{
+                "SubnetIds": [
+                    {
                         "Ref": "DBSubnetId1"
                     },
                     {
                         "Ref": "DBSubnetId2"
                     }
                 ],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Ref": "Application"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "Application"
+                        }
                     }
-                }]
+                ]
             }
         },
         "DBInstance": {
@@ -589,11 +645,33 @@
                 "DBSubnetGroupName": {
                     "Ref": "DBSubnetGroup"
                 },
-                "VPCSecurityGroups": [{
-                    "Ref": "DBSecurityGroup"
-                }],
-                "Engine": "MySQL",
-                "EngineVersion": "5.6.41",
+                "VPCSecurityGroups": [
+                    {
+                        "Ref": "DBSecurityGroup"
+                    }
+                ],
+                "Engine": {
+                    "Fn::FindInMap": [
+                        "DBEngines",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        {
+                            "Ref": "DBEngine"
+                        }
+                    ]
+                },
+                "EngineVersion": {
+                    "Fn::FindInMap": [
+                        "DBVersions",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        {
+                            "Ref": "DBEngine"
+                        }
+                    ]
+                },
                 "MasterUsername": {
                     "Ref": "DBUser"
                 },
@@ -612,22 +690,27 @@
                     "Ref": "Application"
                 },
                 "Scheme": "internet-facing",
-                "SecurityGroups": [{
-                    "Ref": "AppLoadBalancerSecurityGroup"
-                }],
-                "Subnets": [{
+                "SecurityGroups": [
+                    {
+                        "Ref": "AppLoadBalancerSecurityGroup"
+                    }
+                ],
+                "Subnets": [
+                    {
                         "Ref": "LoadBalancerSubnetId1"
                     },
                     {
                         "Ref": "LoadBalancerSubnetId2"
                     }
                 ],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Ref": "Application"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "Application"
+                        }
                     }
-                }],
+                ],
                 "Type": "application"
             }
         },
@@ -639,11 +722,13 @@
                 },
                 "Port": "80",
                 "Protocol": "HTTP",
-                "Targets": [{
-                    "Id": {
-                        "Ref": "WebServerInstance"
+                "Targets": [
+                    {
+                        "Id": {
+                            "Ref": "WebServerInstance"
+                        }
                     }
-                }],
+                ],
                 "VpcId": {
                     "Ref": "VpcId"
                 }
