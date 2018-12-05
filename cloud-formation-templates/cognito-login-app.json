@@ -1,0 +1,551 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "DynamoDbLambda": {
+            "Type": "String",
+            "Default": "lambdaFunctionName"
+        },
+        "CloudWatchLambda": {
+            "Type": "String",
+            "Default": "lambdaFunctionName"
+        },
+        "ApiGateWayLambda": {
+            "Type": "String",
+            "Default": "UniversalLogin_universal-login-api"
+        },
+        "Stage": {
+            "Type": "String",
+            "description": "Please staging of architecture"
+        },
+        "AuroraEndPoint": {
+            "Type": "String",
+            "description": "Aurora DB End Point"
+        },
+        "NetforumEndpoint": {
+            "Type": "String",
+            "description": "NetForum service End Point"
+        }
+    },
+    "Resources": {
+        "UniversalLoginUserLoginAttempts": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "userId",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "email",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "failedAttemptsCount",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "lastLoginAttemptAt",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "expireOn",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "uuid",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "lastLoginAttemptsResetAt",
+                        "AttributeType": "N"
+                    }
+                ]
+            },
+            "KeySchema": [
+                {
+                    "AttributeName": "userId",
+                    "KeyType": "HASH"
+                }
+            ],
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": "5",
+                "WriteCapacityUnits": "5"
+            },
+            "TableName": "Universal-Login-User-Login-Attempts",
+            "StreamSpecification": {
+                "StreamViewType": "NEW_IMAGE"
+            }
+        },
+        "UniversalLoginSyncCognitotoNetforum": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "userId",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "email",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "failedAttemptsCount",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "lastLoginAttemptAt",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "expireOn",
+                        "AttributeType": "N"
+                    },
+                    {
+                        "AttributeName": "uuid",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "lastLoginAttemptsResetAt",
+                        "AttributeType": "N"
+                    }
+                ]
+            },
+            "KeySchema": [
+                {
+                    "AttributeName": "userId",
+                    "KeyType": "HASH"
+                }
+            ],
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": "5",
+                "WriteCapacityUnits": "5"
+            },
+            "TableName": "Universal-Login-User-Login-Attempts",
+            "StreamSpecification": {
+                "StreamViewType": "NEW_IMAGE"
+            }
+        },
+        "EventSourceMapping": {
+            "Type": "AWS::Lambda::EventSourceMapping",
+            "Properties": {
+                "EventSourceArn": {
+                    "Fn::GetAtt": [
+                        "UniversalLoginUserLoginAttempts",
+                        "StreamArn"
+                    ]
+                },
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function/${DynamoDbLambda}"
+                },
+                "StartingPosition": "LATEST"
+            }
+        },
+        "ScheduledRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "ScheduledRule",
+                "ScheduleExpression": "rate(10 minutes)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function/${CloudWatchLambda}"
+                        },
+                        "Id": "TargetFunctionV1"
+                    }
+                ]
+            }
+        },
+        "PermissionForEventsToInvokeLambda": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Ref": "CloudWatchLambda"
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "events.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "ScheduledRule",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "UniveralLoginBucket": {
+            "Type": "AWS::S3::Bucket",
+            "DeletionPolicy": "Retain"
+        },
+        "UniveralLoginBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket": {
+                    "Ref": "univeralLoginBucket"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:GetObject"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:aws:s3:::",
+                                        {
+                                            "Ref": "univeralLoginBucket"
+                                        },
+                                        "/*"
+                                    ]
+                                ]
+                            },
+                            "Principal": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "KmsKey": {
+            "Type": "AWS::KMS::Key",
+            "Properties": {
+                "KeyPolicy": {
+                    "Version": "2012-10-17",
+                    "Id": "key-default-1",
+                    "Statement": [
+                        {
+                            "Sid": "Enable IAM User Permissions",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:iam::",
+                                            {
+                                                "Ref": "AWS::AccountId"
+                                            },
+                                            ":root"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "KmsSsmParameter": {
+            "Type": "AWS::SSM::Parameter",
+            "Properties": {
+                "Name": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "Stage"
+                            },
+                            "/kms/key"
+                        ]
+                    ]
+                },
+                "Type": "String",
+                "Value": "KmsKey"
+            }
+        },
+        "AuroraEndPointSsmParameter": {
+            "Type": "AWS::SSM::Parameter",
+            "Properties": {
+                "Name": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "Stage"
+                            },
+                            "/auroraendpoint"
+                        ]
+                    ]
+                },
+                "Type": "String",
+                "Value": "AuroraEndPoint"
+            }
+        },
+        "NetforumEndpointSsmParameter": {
+            "Type": "AWS::SSM::Parameter",
+            "Properties": {
+                "Name": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "Stage"
+                            },
+                            "/netformendpoint"
+                        ]
+                    ]
+                },
+                "Type": "String",
+                "Value": "NetforumEndpoint"
+            }
+        },
+        "CloudfrontDistribution": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+                "DistributionConfig": {
+                    "Origins": [
+                        {
+                            "DomainName": "account-dev.aia.org.s3.amazonaws.com",
+                            "Id": "S3-account-dev.aia.org",
+                            "S3OriginConfig": {
+                                "OriginAccessIdentity": "origin-access-identity/cloudfront/E3SNJNF83IUWC"
+                            }
+                        },
+                        {
+                            "DomainName": "gvpktjpk6a.execute-api.us-east-1.amazonaws.com",
+                            "Id": "UniversalLoginAPI",
+                            "S3OriginConfig": {}
+                        }
+                    ],
+                    "Enabled": "true"
+                }
+            }
+        },
+        "CognitoUserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+                "UserPoolName": "",
+                "UsernameAttributes": "email",
+                "AutoVerifiedAttributes": "email"
+            }
+        },
+        "CognitoUserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Properties": {
+                "ClientName": "",
+                "UserPoolId": {
+                    "Ref": "CognitoUserPool"
+                },
+                "ExplicitAuthFlows": "ADMIN_NO_SRP_AUTH",
+                "GenerateSecret": false
+            }
+        },
+        "UniversalLoginRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+                "Name": "universal_login",
+                "Description": "API used for Greeting requests",
+                "FailOnWarnings": true
+            }
+        },
+        "LambdaPermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function/${ApiGateWayLambda}"
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "arn:aws:execute-api:",
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                                "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                                "Ref": "UniversalLoginRestApi"
+                            },
+                            "/*/*/system/*"
+                        ]
+                    ]
+                }
+            }
+        },
+        "UniversalLoginApiStage": {
+            "DependsOn": [
+                "ApiGatewayAccount"
+            ],
+            "Type": "AWS::ApiGateway::Stage",
+            "Properties": {
+                "DeploymentId": {
+                    "Ref": "ApiDeployment"
+                },
+                "MethodSettings": [
+                    {
+                        "DataTraceEnabled": true,
+                        "HttpMethod": "*",
+                        "LoggingLevel": "INFO",
+                        "ResourcePath": "/*"
+                    }
+                ],
+                "RestApiId": {
+                    "Ref": "UniversalLoginRestApi"
+                },
+                "StageName": "api-v1"
+            }
+        },
+        "ApiGatewayCloudWatchLogsRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "apigateway.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "ApiGatewayLogsPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:DescribeLogGroups",
+                                        "logs:DescribeLogStreams",
+                                        "logs:PutLogEvents",
+                                        "logs:GetLogEvents",
+                                        "logs:FilterLogEvents"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "ApiGatewayAccount": {
+            "Type": "AWS::ApiGateway::Account",
+            "Properties": {
+                "CloudWatchRoleArn": {
+                    "Fn::GetAtt": [
+                        "ApiGatewayCloudWatchLogsRole",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "ApiDeployment": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "DependsOn": [
+                "GreetingRequest"
+            ],
+            "Properties": {
+                "RestApiId": {
+                    "Ref": "GreetingApi"
+                },
+                "StageName": "api-v1"
+            }
+        },
+        "ApiGatewayResource": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+                "RestApiId": {
+                    "Ref": "UniversalLoginRestApi"
+                },
+                "ParentId": {
+                    "Fn::GetAtt": [
+                        "UniversalLoginRestApi",
+                        "RootResourceId"
+                    ]
+                },
+                "PathPart": "/"
+            }
+        },
+        "ApiGatewayRequest": {
+            "DependsOn": "LambdaPermission",
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "NONE",
+                "HttpMethod": "GET",
+                "Integration": {
+                    "Type": "AWS",
+                    "IntegrationHttpMethod": "POST",
+                    "Uri": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "arn:aws:apigateway:",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                ":lambda:path/2015-03-31/functions/",
+                                {
+                                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function/${ApiGateWayLambda}"
+                                },
+                                "/invocations"
+                            ]
+                        ]
+                    },
+                    "IntegrationResponses": [
+                        {
+                            "StatusCode": 200
+                        }
+                    ],
+                    "RequestTemplates": {
+                        "application/json": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{",
+                                    "\"name\": \"$input.params('name')\"",
+                                    "}"
+                                ]
+                            ]
+                        }
+                    }
+                },
+                "RequestParameters": {
+                    "method.request.querystring.name": false
+                },
+                "ResourceId": {
+                    "Ref": "ApiGatewayResource"
+                },
+                "RestApiId": {
+                    "Ref": "UniversalLoginRestApi"
+                },
+                "MethodResponses": [
+                    {
+                        "StatusCode": 200
+                    }
+                ]
+            }
+        },
+        "Outputs": {
+            "UserPoolClientId": {
+                "Value": {
+                    "Ref": "CognitoUserPoolClient"
+                }
+            },
+            "UserPoolId": {
+                "Value": {
+                    "Ref": "CognitoUserPool"
+                }
+            }
+        }
+    }
+}
