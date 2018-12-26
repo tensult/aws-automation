@@ -11,7 +11,6 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
     alarmActionArn: ['a', "Action to be trigger when alarm is breached", "string"],
@@ -19,7 +18,7 @@ const cliArgs = cli.parse({
     invocationCount: ['c', 'Maximum invocations in the specified duration', 'number', 15]
 });
 
-if (!cliArgs.profile || !cliArgs.region || !cliArgs.alarmActionArn) {
+if (!cliArgs.region || !cliArgs.alarmActionArn) {
     cli.getUsage();
 }
 
@@ -29,7 +28,7 @@ let isCompleted = false;
 let nextToken = undefined;
 
 async function setFunctionInvocationAlarms() {
-    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    await awsConfigHelper.updateConfig(cliArgs.region);
     const lambda = new AWS.Lambda();
     const cloudwatch = new AWS.CloudWatch();
     while (!isCompleted) {

@@ -9,12 +9,11 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     tablePrefix: ['t', 'dynamodb table prefix', 'string'],
 });
 
-if (!cliArgs.profile || !cliArgs.region) {
+if (!cliArgs.region) {
     cli.getUsage();
 }
 
@@ -22,7 +21,7 @@ let isCompleted = false;
 let nextToken = undefined;
 
 async function enableTableBackup() {
-    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    await awsConfigHelper.updateConfig(cliArgs.region);
     const dynamodb = new AWS.DynamoDB();
 
     while (!isCompleted) {

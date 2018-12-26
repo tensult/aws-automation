@@ -13,19 +13,18 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string',"default"],
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string'],
     retention: ['R', 'Log group retention period in days', 'number', '14']
 });
 
-if(!cliArgs.profile || !cliArgs.region) {
+if(!cliArgs.region) {
     cli.getUsage();
 }
 
 
 async function setLogGroupRetention() {
-    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    await awsConfigHelper.updateConfig(cliArgs.region);
     const cloudwatchLogs = new AWS.CloudWatchLogs();
 
     let isCompleted = false;

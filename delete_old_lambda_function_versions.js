@@ -9,13 +9,12 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
     maxVersions: ['v', 'Maximum versions to keep: should be greater than 0', 'number', 3]
 });
 
-if (!cliArgs.profile || !cliArgs.region || cliArgs.maxVersions < 1) {
+if (!cliArgs.region || cliArgs.maxVersions < 1) {
     cli.getUsage();
 }
 
@@ -52,7 +51,7 @@ async function getFunctionVersions(functionName) {
 }
 
 async function deleteFunctionVersions() {
-    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    await awsConfigHelper.updateConfig(cliArgs.region);
     lambda = new AWS.Lambda();
     let isCompleted = false;
     let nextToken = undefined;

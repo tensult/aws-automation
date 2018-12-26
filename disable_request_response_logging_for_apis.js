@@ -9,11 +9,10 @@ const cli = require('cli');
 const awsConfigHelper = require('./util/awsConfigHelper');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string']
 });
 
-if (!cliArgs.profile || !cliArgs.region) {
+if (!cliArgs.region) {
     cli.getUsage();
 }
 
@@ -76,7 +75,7 @@ function getStages(restApiId) {
 
 async function disableRequestLogging() {
     try {
-        await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+        await awsConfigHelper.updateConfig(cliArgs.region);
         ApiGateway = new AWS.APIGateway();
         const restApis = await getRestApis();
         for (let i = 0; i < restApis.items.length; i++) {
