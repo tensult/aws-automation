@@ -39,7 +39,7 @@ async function setFunctionInvocationAlarms() {
             if (response.Functions) {
                 for (let i = 0; i < response.Functions.length; i++) {
                     const fn = response.Functions[i];
-                    if (cliArgs.filterName && fn.FunctionName.match(filterRegex)) {
+                    if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
                         console.log("Skipping function", fn.FunctionName);
                         continue;
                     }
