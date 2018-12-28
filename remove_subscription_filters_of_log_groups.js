@@ -7,12 +7,11 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string']
 });
 
-if (!cliArgs.profile ||
+if (
     !cliArgs.region) {
     cli.getUsage();
 }
@@ -41,7 +40,7 @@ async function getSubscriptionFilters(logGroupName) {
 }
 
 async function removeLogGroupSubscriptionFilters() {
-    await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+    await awsConfigHelper.updateConfig(cliArgs.region);
     cloudwatchLogs = new AWS.CloudWatchLogs();
     let isCompleted = false;
     let nextToken = undefined;

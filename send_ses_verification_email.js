@@ -6,19 +6,18 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    profile: ['p', 'AWS profile name', 'string', 'default'],
     region: ['r', 'AWS region', 'string'],
     email: ['e', "Email to be verified by SES", "string"],
 });
 
-if (!cliArgs.profile || !cliArgs.region || !cliArgs.email) {
+if (!cliArgs.region || !cliArgs.email) {
     cli.getUsage();
 }
 
 async function sendVerificationEmail() {
 
     try {
-        await awsConfigHelper.updateConfig(cliArgs.profile, cliArgs.region);
+        await awsConfigHelper.updateConfig(cliArgs.region);
         const ses = new AWS.SES();
         return await ses.verifyEmailIdentity({
             EmailAddress: cliArgs.email
