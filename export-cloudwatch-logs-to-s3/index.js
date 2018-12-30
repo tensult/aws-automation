@@ -18,11 +18,10 @@ function getS3Buckets() {
 
 async function isS3BucketExists(bucketName) {
     try {
-        let bucketsObject = await getS3Buckets();
-        let isBucketExists = bucketsObject.Buckets.find((bucket) => {
+        const bucketsObject = await getS3Buckets();
+        const isBucketExists = bucketsObject.Buckets.find((bucket) => {
             return bucket.Name === bucketName;
-        })
-        // console.log(isBucketExists);
+        });
         if (isBucketExists)
             return true;
         else
@@ -34,7 +33,7 @@ async function isS3BucketExists(bucketName) {
 
 async function createS3BucketAndPutPolicy(bucketName) {
     try {
-        let _isS3BucketExist = await isS3BucketExists(bucketName);
+        const _isS3BucketExist = await isS3BucketExists(bucketName);
         if (_isS3BucketExist) {
             console.log('s3 bucket exists');
         }
@@ -42,8 +41,7 @@ async function createS3BucketAndPutPolicy(bucketName) {
             await s3Instance.createBucket({
                 Bucket: bucketName
             }).promise();
-            console.log('s3 bucket is created ' + bucketName);
-            // await putS3BucketPolicy(bucketName);
+            console.log('s3 bucket is created ', bucketName);
             await s3Instance.putBucketPolicy({
                 Bucket: bucketName,
                 Policy: "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Effect\": \"Allow\",\
@@ -78,7 +76,7 @@ async function createS3BucketAndPutPolicy(bucketName) {
 
 function getDatePath(dateObj) {
     const year = dateObj.getFullYear();
-    const month = dateObj.getMonth()+1;
+    const month = dateObj.getMonth() + 1;
     const date = dateObj.getDate();
     return `${year}/${month}/${date}`;
 }
@@ -109,8 +107,8 @@ let waitErrorCount = 0;
 async function waitForExportTaskToComplete(taskId) {
     try {
         const taskDetails = await describeExportTask(taskId);
-        let task = taskDetails.exportTasks[0];
-        let taskStatus = task.status.code;
+        const task = taskDetails.exportTasks[0];
+        const taskStatus = task.status.code;
         if (taskStatus === 'RUNNING' || taskStatus.indexOf('PENDING') !== -1) {
             console.log('Task is running for ', task.logGroupName, 'with stats', task.status);
             await wait(1000);
@@ -147,7 +145,7 @@ async function exportToS3Task(s3BucketName, logGroupName, logFolderName) {
 }
 
 function getCloudWatchLogGroups(nextToken, limit) {
-    let params = {
+    const params = {
         nextToken: nextToken,
         limit: limit
     };
@@ -176,7 +174,7 @@ exports.handler = async (event) => {
             return event;
         }
         await exportToS3Task(s3BucketName, logGroupName, logFolderName);
-        console.log("Successfully created export task for " + logGroupName);
+        console.log("Successfully created export task for ", logGroupName);
         return event;
     } catch (error) {
         console.error(error);
