@@ -18,11 +18,10 @@ function getS3Buckets() {
 
 async function isS3BucketExists(bucketName) {
     try {
-        let bucketsObject = await getS3Buckets();
-        let isBucketExists = bucketsObject.Buckets.find((bucket) => {
+        const bucketsObject = await getS3Buckets();
+        const isBucketExists = bucketsObject.Buckets.find((bucket) => {
             return bucket.Name === bucketName;
-        })
-        // console.log(isBucketExists);
+        });
         if (isBucketExists)
             return true;
         else
@@ -34,7 +33,7 @@ async function isS3BucketExists(bucketName) {
 
 async function createS3BucketAndPutPolicy(bucketName) {
     try {
-        let _isS3BucketExist = await isS3BucketExists(bucketName);
+        const _isS3BucketExist = await isS3BucketExists(bucketName);
         if (_isS3BucketExist) {
             console.log('s3 bucket exists');
         }
@@ -42,8 +41,7 @@ async function createS3BucketAndPutPolicy(bucketName) {
             await s3Instance.createBucket({
                 Bucket: bucketName
             }).promise();
-            console.log('s3 bucket is created '+ bucketName);
-            // await putS3BucketPolicy(bucketName);
+            console.log('s3 bucket is created ', bucketName);
             await s3Instance.putBucketPolicy({
                 Bucket: bucketName,
                 Policy: "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Effect\": \"Allow\",\
@@ -76,26 +74,11 @@ async function createS3BucketAndPutPolicy(bucketName) {
     }
 }
 
-
-function getDayStartTimestamp(date) {
-    date = date || new Date();
-    date.setUTCHours(0);
-    date.setUTCMinutes(0);
-    date.setUTCSeconds(0);
-    date.setUTCMilliseconds(0);
-    return date.getTime();
-}
-
-function getYesterdayDate() {
-    const date = new Date();
-    date.setUTCDate(date.getUTCDate() - 1);
-    return date;
-}
-
-function getDatePath(date) {
-    date = date || new Date();
-    const dateString = date.toISOString().substring(0, 10);
-    return dateString.replace(/-/g, '/');
+function getDatePath(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth() + 1;
+    const date = dateObj.getDate();
+    return `${year}/${month}/${date}`;
 }
 
 function getLogPathForS3(logGroupName) {
@@ -124,8 +107,8 @@ let waitErrorCount = 0;
 async function waitForExportTaskToComplete(taskId) {
     try {
         const taskDetails = await describeExportTask(taskId);
-        let task = taskDetails.exportTasks[0];
-        let taskStatus = task.status.code;
+        const task = taskDetails.exportTasks[0];
+        const taskStatus = task.status.code;
         if (taskStatus === 'RUNNING' || taskStatus.indexOf('PENDING') !== -1) {
             console.log('Task is running for ', task.logGroupName, 'with stats', task.status);
             await wait(1000);
@@ -144,15 +127,16 @@ async function waitForExportTaskToComplete(taskId) {
 async function exportToS3Task(s3BucketName, logGroupName, logFolderName) {
     try {
         const logPathForS3 = getLogPathForS3(logGroupName);
-        const yesterdayDate = getYesterdayDate();
-        let params = {
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+        const params = {
             destination: s3BucketName,
-            destinationPrefix: `${logFolderName}/${logPathForS3}/${getDatePath(yesterdayDate)}`,
-            from: getDayStartTimestamp(getYesterdayDate()),
+            destinationPrefix: `${logFolderName}/${logPathForS3}/${getDatePath(new Date())}`,
+            from: yesterday.getTime(),
             logGroupName: logGroupName,
-            to: getDayStartTimestamp()
+            to: today.getTime()
         };
-        // console.log(params);
         const response = await cloudwatchLogsInstance.createExportTask(params).promise();
         await waitForExportTaskToComplete(response.taskId);
     } catch (error) {
@@ -161,7 +145,7 @@ async function exportToS3Task(s3BucketName, logGroupName, logFolderName) {
 }
 
 function getCloudWatchLogGroups(nextToken, limit) {
-    let params = {
+    const params = {
         nextToken: nextToken,
         limit: limit
     };
@@ -169,11 +153,11 @@ function getCloudWatchLogGroups(nextToken, limit) {
 }
 
 exports.handler = async (event) => {
-    let region = event.region;
-    let s3BucketName = event.s3BucketName;
-    let logFolderName = event.logFolderName;
-    let nextToken = event.nextToken;
-    let logGroupFilter = event.logGroupFilter;
+    const region = event.region;
+    const s3BucketName = event.s3BucketName;
+    const logFolderName = event.logFolderName;
+    const nextToken = event.nextToken;
+    const logGroupFilter = event.logGroupFilter;
     try {
         setRegion(region);
         setInstance();
@@ -181,7 +165,7 @@ exports.handler = async (event) => {
         let cloudWatchLogGroups = await getCloudWatchLogGroups(nextToken, 1);
         event.nextToken = cloudWatchLogGroups.nextToken;
         event.continue = cloudWatchLogGroups.nextToken !== undefined;
-        if(cloudWatchLogGroups.logGroups.length < 1) {
+        if (cloudWatchLogGroups.logGroups.length < 1) {
             return event;
         }
         const logGroupName = cloudWatchLogGroups.logGroups[0].logGroupName;
@@ -190,7 +174,7 @@ exports.handler = async (event) => {
             return event;
         }
         await exportToS3Task(s3BucketName, logGroupName, logFolderName);
-        console.log("Successfully created export task for "+ logGroupName);
+        console.log("Successfully created export task for ", logGroupName);
         return event;
     } catch (error) {
         console.error(error);
