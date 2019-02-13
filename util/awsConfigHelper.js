@@ -1,6 +1,6 @@
 var AWS = require('aws-sdk');
 
-exports.updateConfig = function (profile, region) {
+exports.updateConfig = function (region) {
   AWS.CredentialProviderChain.defaultProviders = [
     function () {
       return new AWS.EnvironmentCredentials('AWS');
@@ -10,7 +10,7 @@ exports.updateConfig = function (profile, region) {
     },
     function () {
       return new AWS.SharedIniFileCredentials({
-        profile
+        profile: process.env.AWS_PROFILE
       });
     },
     function () {
