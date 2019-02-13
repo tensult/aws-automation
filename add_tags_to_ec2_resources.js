@@ -1,6 +1,6 @@
 /**
  * Adds tags to several AWS EC2 resources:
- * AWS_PROFILE=<aws-profile> node add_tags_to_ec2_resources.js -r ap-south-1 -R "i-1234,ami-1234" -t "key1=value1"
+ * AWS_PROFILE=<aws-profile> node add_tags_to_ec2_resources.js -r ap-south-1 -R "i-1234,ami-1234" -t "key1=value1;key2=value2"
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');

@@ -1,6 +1,6 @@
 /**
  * Removes tags to several AWS EC2 resources:
- * AWS_PROFILE=<aws-profile> node add_tags_to_ec2_resources.js -r ap-south-1 -R "i-1234,ami-1234" -t "key1,key2"
+ * AWS_PROFILE=<aws-profile> node remove_tags_from_ec2_resources.js -r ap-south-1 -R "i-1234,ami-1234" -t "key1,key2"
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
