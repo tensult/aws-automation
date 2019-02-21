@@ -1,4 +1,9 @@
 /**
+ * 
+ * @description This function creates a SNS topic and then create multiple emails subscription on that topic.
+ * 
+ * 
+ * To run the function follow below command: 
  * AWS_PROFILE=<aws-profile> node create_sns_topic_and_subsciptions.js -r <aws-region> -t '<topic-name>' -s '<email_1>,<email_2>,..' 
  */
 
