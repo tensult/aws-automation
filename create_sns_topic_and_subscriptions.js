@@ -4,7 +4,7 @@
  * 
  * 
  * To run the function follow below command: 
- * AWS_PROFILE=<aws-profile> node create_sns_topic_and_subsciptions.js -r <aws-region> -t '<topic-name>' -d '<topic-display-name>' -s '<email_1>,<email_2>,..' 
+ * AWS_PROFILE=<aws-profile> node create_sns_topic_and_subscriptions.js -r <aws-region> -t '<topic-name>' -d '<topic-display-name>' -s '<email_1>,<email_2>,..' 
  */
 
 const AWS = require('aws-sdk');
