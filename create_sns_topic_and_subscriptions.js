@@ -15,15 +15,20 @@ const awsUtil = require('./util/aws');
 const cliArgs = cli.parse({
     region: ['r', 'AWSRegion', 'string'],
     topicName: ['t', 'TopicName', 'string'],
+    topicDisplayName: ['d', 'TopicDisplayName', 'string'],
     subscriptionEnpoints: ['s', 'SubscriptionEndpoints', 'string'],
 });
 
-if (!cliArgs.region || !cliArgs.topicName || !cliArgs.subscriptionEnpoints) {
+if (!cliArgs.region || !cliArgs.topicName || !cliArgs.topicDisplayName || !cliArgs.subscriptionEnpoints) {
     cli.getUsage();
 }
 
 function getTopicName() {
     return cliArgs.topicName;
+}
+
+function getTopicDisplayName() {
+    return cliArgs.topicDisplayName;
 }
 
 function getSubscriptionEndpoints() {
@@ -39,10 +44,14 @@ function createSubscription(sns, topicArn, subscriptionEndpoint) {
     return sns.subscribe(params).promise();
 }
 
-function createTopic(sns, topicName) {
+function createTopic(sns, topicName, topicDisplayName) {
     const params = {
         Name: topicName,
+        Attributes: {
+            DisplayName: topicDisplayName
+        }
     };
+    console.log(params);
     return sns.createTopic(params).promise();
 }
 
@@ -51,7 +60,8 @@ async function handler() {
         await awsConfigHelper.updateConfig(cliArgs.region);
         const sns = new AWS.SNS();
         const topicName = getTopicName();
-        const createdTopic = await createTopic(sns, topicName);
+        const topicDisplayName = getTopicDisplayName();
+        const createdTopic = await createTopic(sns, topicName, topicDisplayName);
         const subscriptionEndpoints = getSubscriptionEndpoints();
         for (const subscriptionEndpoint of subscriptionEndpoints) {
             await createSubscription(sns, createdTopic.TopicArn, subscriptionEndpoint);
