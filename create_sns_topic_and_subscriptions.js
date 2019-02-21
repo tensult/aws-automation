@@ -5,6 +5,7 @@
 const AWS = require('aws-sdk');
 const cli = require('cli');
 const awsConfigHelper = require('./util/awsConfigHelper');
+const awsUtil = require('./util/aws');
 
 const cliArgs = cli.parse({
     region: ['r', 'AWSRegion', 'string'],
@@ -21,9 +22,7 @@ function getTopicName() {
 }
 
 function getSubscriptionEndpoints() {
-    return cliArgs.subscriptionEnpoints.split(',').map((endpoint) => {
-        return endpoint.trim();
-    })
+    return awsUtil.getStringArrayFromCommaSeperatedString(cliArgs.subscriptionEnpoints);
 }
 
 function createSubscription(sns, topicArn, subscriptionEndpoint) {
