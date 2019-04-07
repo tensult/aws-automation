@@ -7,7 +7,7 @@ const s3 = new AWS.S3();
 let s3BucketName = process.argv[2];
 let s3FolderPrefix = process.argv[3];
 let startDate = process.argv[4]; // Example: 2019-01-01
-let endDate = process.argv[4]; // Example: 2019-04-04
+let endDate = process.argv[5]; // Example: 2019-04-04
 
 function getDatesInBetween(startDate, endDate) {
     let dates = [];
