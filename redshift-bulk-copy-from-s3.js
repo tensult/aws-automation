@@ -28,7 +28,6 @@ async function executeQuery(query, params) {
 }
 
 function listDayWiseObjects() {
-
     return s3.listObjectsV2({
         Bucket: s3BucketName,
         Prefix: s3FolderPrefix
