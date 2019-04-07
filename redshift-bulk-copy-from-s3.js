@@ -34,7 +34,6 @@ function listDayWiseObjects() {
     }).promise();
 }
 
-
 async function migrateToRedShift() {
     const s3Response = await listDayWiseObjects();
     if (s3Response.Contents && s3Response.Contents.length) {
