@@ -1,3 +1,4 @@
+// To run this: node redshift-bulk-copy-from-s3.js <s3-bucket-name> <s3-manifest-folder-path> <redshift-EndPoint> <redshift-DBName> <redshift-DBUser> <redshift-DBPassword> <redshift-DBTableName> <redshift-S3Role> 
 const pg = require("pg");
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
