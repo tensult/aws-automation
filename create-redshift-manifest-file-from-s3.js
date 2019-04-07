@@ -1,3 +1,4 @@
+// To run this: node create-redshift-manifest-file-from-s3.js <your-s3-bucket-name> <your-s3-data-folder-path> 2019-01-01 2019-04-03 
 const AWS = require("aws-sdk");
 const FileSystem = require('node-fs');
 
