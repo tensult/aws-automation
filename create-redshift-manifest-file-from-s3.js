@@ -1,4 +1,5 @@
 // To run this: node create-redshift-manifest-file-from-s3.js <your-s3-bucket-name> <your-s3-data-folder-path> 2019-01-01 2019-04-03 
+// More info: https://medium.com/tensult/how-to-migrate-aws-redshift-dc2-to-ds2-node-cluster-73f320dc57f6
 const AWS = require("aws-sdk");
 const FileSystem = require('node-fs');
 
