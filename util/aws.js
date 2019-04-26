@@ -60,3 +60,10 @@ exports.mergeTags = function (tags1, tags2) {
         };
     });
 }
+
+exports.getStringArrayFromCommaSeperatedString = function (stringValue) {
+    if (!stringValue) {
+        return undefined;
+    }
+    return stringValue.trim().split(/\s*,\s*/);
+}
