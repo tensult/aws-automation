@@ -24,4 +24,4 @@ Execute the following command in terminal to store videos data in local :
 ### Step 2: Retranscode videos
 Execute the following command in terminal to retranscode videos :
 
-`$ sh brightcove_all_videos_retranscode.sh <FILE_DIR_PATH>`
+`$ CLIENT_SECRET=<CLIENT_SECRET> CLIENT_ID=<CLIENT_ID> BRIGHTCOVE_ACCOUNT_ID=<BRIGHTCOVE_ACCOUNT_ID> INGETION_PROFILE=<INGETION_PROFILE> FUNCTION_NAME=retranscodeVideos sh brightcove_all_videos_retranscode.sh <FILE_DIR_PATH>`

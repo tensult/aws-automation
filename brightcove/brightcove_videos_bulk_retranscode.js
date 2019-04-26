@@ -10,6 +10,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BRIGHTCOVE_ACCOUNT_ID = process.env.BRIGHTCOVE_ACCOUNT_ID;
 const FILE_DIR_PATH = process.env.FILE_DIR_PATH;
 const FUNCTION_NAME = process.env.FUNCTION_NAME;
+const INGETION_PROFILE = process.env.INGETION_PROFILE;
 
 const videosApiName = "videos";
 const formRequestType = "form";
@@ -90,7 +91,7 @@ async function ingestVideo(brightcoveVideo) {
             master: {
                 use_archived_master: true
             },
-            profile: "multi-platform-custom-2audio-5video"
+            profile: INGETION_PROFILE
         }).then(function (res) {
             return res.body;
         }).catch(function (err) {
