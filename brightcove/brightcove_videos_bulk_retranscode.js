@@ -1,9 +1,3 @@
-/**
- *  Execute the following commands to run:
- *  $ tsc
- *  $ CLIENT_SECRET=<CLIENT_SECRET> CLIENT_ID=<CLIENT_ID> BRIGHTCOVE_ACCOUNT_ID=<BRIGHTCOVE_ACCOUNT_ID> FUNCTION_NAME=<FUNCTION_NAME> FILE_PATH=<FILE_PATH> node brighcove_videos_bulk_migrate.js 
- */
-
 const superagent = require("superagent");
 const fs = require('fs');
 
@@ -14,7 +8,7 @@ const brightcoveIngestApiUrl = "https://ingest.api.brightcove.com/v1/accounts";
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BRIGHTCOVE_ACCOUNT_ID = process.env.BRIGHTCOVE_ACCOUNT_ID;
-const FILE_PATH = process.env.FILE_PATH;
+const FILE_DIR_PATH = process.env.FILE_DIR_PATH;
 const FUNCTION_NAME = process.env.FUNCTION_NAME;
 
 const videosApiName = "videos";
@@ -176,8 +170,8 @@ async function storeBrightcoveVideoDataInJson() {
 
 async function retranscodeVideos() {
     try {
-        const videos = JSON.parse(fs.readFileSync(FILE_PATH, 'utf8'));
-        console.log("processing", FILE_PATH);
+        const videos = JSON.parse(fs.readFileSync(FILE_DIR_PATH, 'utf8'));
+        console.log("processing", FILE_DIR_PATH);
         let finalStatus = "done";
         for (const video of videos) {
             if (video.status === 'notProcessed') {
@@ -204,8 +198,8 @@ async function retranscodeVideos() {
             }
             video.status === 'transcoded';
         }
-        fs.writeFileSync(FILE_PATH + "." + finalStatus, JSON.stringify(videos, null, 2));
-        console.log("Completed", FILE_PATH);
+        fs.writeFileSync(FILE_DIR_PATH + "." + finalStatus, JSON.stringify(videos, null, 2));
+        console.log("Completed", FILE_DIR_PATH);
     } catch (error) {
         console.error(error);
     }
