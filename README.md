@@ -22,8 +22,10 @@ Execute the following command in terminal to store videos data in local :
 
 `$ CLIENT_SECRET=<CLIENT_SECRET> CLIENT_ID=<CLIENT_ID> BRIGHTCOVE_ACCOUNT_ID=<BRIGHTCOVE_ACCOUNT_ID> FUNCTION_NAME=storeBrightcoveVideoDataInJson FILE_DIR_PATH=<FILE_DIR_PATH> node brighcove_videos_bulk_retranscode.js`
 
+
 ### Step 2: Retranscode videos
 Execute the following command in terminal to retranscode videos :
 
-`$ CLIENT_SECRET=<CLIENT_SECRET> CLIENT_ID=<CLIENT_ID> BRIGHTCOVE_ACCOUNT_ID=<BRIGHTCOVE_ACCOUNT_ID> INGETION_PROFILE=<INGETION_PROFILE> FUNCTION_NAME=retranscodeVideos sh brightcove_all_videos_retranscode.sh <FILE_DIR_PATH>`
+`$ CLIENT_SECRET=<CLIENT_SECRET> CLIENT_ID=<CLIENT_ID> BRIGHTCOVE_ACCOUNT_ID=<BRIGHTCOVE_ACCOUNT_ID> INGETION_PROFILE=<INGETION_PROFILE>  BRIGHTCOVE_VIDEO_MIN_VIEWS=<BRIGHTCOVE_VIDEO_MIN_VIEWS> FUNCTION_NAME=retranscodeVideos FILE_DIR_PATH=<FILE_DIR_PATH> sh brightcove_all_videos_retranscode.sh`
+
 
