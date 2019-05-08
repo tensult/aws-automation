@@ -97,7 +97,7 @@ async function getVideosWithViewFromBrightCove(videoIds) {
         return retrieveVideos;
 
     } catch (error) {
-        console.log('error in video search with view', error)
+        console.log('get', error)
     }
 
 }
@@ -187,7 +187,6 @@ async function storeBrightcoveVideoDataInJson() {
         while (numberOfPages) {
             let videos = await getVideosFromBrightCove(offset, limit);
             let videoViews = await getVideosWithViewFromBrightCove(getVideoIds(videos));
-            console.log('videoViews', videoViews);
             videos.forEach((video) => {
                 video.views = videoViews[video.id];
                 video.status = 'notProcessed';

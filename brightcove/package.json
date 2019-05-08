@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "eslint": "^5.16.0",
     "fs": "0.0.1-security",
     "superagent": "^5.0.5"
   }
