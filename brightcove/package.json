@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fs": "0.0.1-security",
     "superagent": "^5.0.5"
   }
 }
