@@ -4,19 +4,25 @@ const fs = require('fs');
 const brightcoveAuthApiUrl = "https://oauth.brightcove.com/v3/access_token";
 const brightcoveAccountApiUrl = "https://cms.api.brightcove.com/v1/accounts";
 const brightcoveIngestApiUrl = "https://ingest.api.brightcove.com/v1/accounts";
+const brightcoveDimensionApiUrl = "https://analytics.api.brightcove.com/v1/data";
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BRIGHTCOVE_ACCOUNT_ID = process.env.BRIGHTCOVE_ACCOUNT_ID;
 const FILE_DIR_PATH = process.env.FILE_DIR_PATH;
+const FILE_NAME = process.env.FILE_NAME;
 const FUNCTION_NAME = process.env.FUNCTION_NAME;
 const INGETION_PROFILE = process.env.INGETION_PROFILE;
+const BRIGHTCOVE_VIDEO_MIN_VIEWS = process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS ?
+    parseInt(process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS) : 0;
+
 
 const videosApiName = "videos";
+const dimensions = "video";
 const formRequestType = "form";
 const authHeader = "Authorization";
 const pathDelimiter = "/";
-const brightcoveVideosDataDir = './brightcoveVideosData'
+const brightcoveVideosDataDir = FILE_DIR_PATH
 const cache = {};
 const functions = {};
 
@@ -74,6 +80,28 @@ async function getVideosFromBrightCove(offset = 0, limit = 1) {
             return res.body;
         });
 }
+
+async function getVideosWithViewFromBrightCove(videoIds) {
+    const brightcoveVideosWithViewApiUrl = brightcoveDimensionApiUrl + `?accounts=${BRIGHTCOVE_ACCOUNT_ID}&dimensions=${dimensions}&where=video==${videoIds.join(",")}`;
+    try {
+        const retrieveVideos = await superagent.get(brightcoveVideosWithViewApiUrl).set({
+            [authHeader]: await getAccessTokenAuthHeader()
+        }).send().then(function (res) {
+            return res.body.items;
+        }).then((videos) => {
+            return videos.reduce((videosMap, video) => {
+                videosMap[video.video] = video.video_view;
+                return videosMap;
+            }, {});
+        });
+        return retrieveVideos;
+
+    } catch (error) {
+        console.log('get', error)
+    }
+
+}
+
 
 
 async function ingestVideo(brightcoveVideo) {
@@ -145,6 +173,10 @@ async function getBrightcoveVideosCounts() {
         });
 }
 
+function getVideoIds(videos) {
+    return videos.map((video) => video.id);
+}
+
 async function storeBrightcoveVideoDataInJson() {
     try {
         createDirectory();
@@ -154,11 +186,13 @@ async function storeBrightcoveVideoDataInJson() {
         var numberOfPages = Math.ceil(brightcoveVideosCounts.count / limit);
         while (numberOfPages) {
             let videos = await getVideosFromBrightCove(offset, limit);
+            let videoViews = await getVideosWithViewFromBrightCove(getVideoIds(videos));
             videos.forEach((video) => {
+                video.views = videoViews[video.id];
                 video.status = 'notProcessed';
                 return video;
             });
-            const json = JSON.stringify(videos);
+            const json = JSON.stringify(videos, null, 2);
             fs.writeFileSync(`${brightcoveVideosDataDir}/${numberOfPages}.json`, json);
             offset += videos.length;
             console.log(`${numberOfPages} page data stored`);
@@ -171,11 +205,11 @@ async function storeBrightcoveVideoDataInJson() {
 
 async function retranscodeVideos() {
     try {
-        const videos = JSON.parse(fs.readFileSync(FILE_DIR_PATH, 'utf8'));
-        console.log("processing", FILE_DIR_PATH);
+        const videos = JSON.parse(fs.readFileSync(FILE_NAME, 'utf8'));
         let finalStatus = "done";
         for (const video of videos) {
-            if (video.status === 'notProcessed') {
+            if (video.status === 'notProcessed' && video.views >= BRIGHTCOVE_VIDEO_MIN_VIEWS) {
+                console.log("Processing video:", video.id, video.status, video.views);
                 const ingestedVideo = await ingestVideo(video);
                 if (!ingestVideo) {
                     video.status = "failed"
@@ -183,6 +217,8 @@ async function retranscodeVideos() {
                     continue;
                 }
                 video.jobId = ingestedVideo.id;
+            } else {
+                console.log("Skipping video:", video.id, video.status, video.views);
             }
         }
         for (const video of videos) {
