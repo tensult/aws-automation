@@ -244,7 +244,6 @@ async function retranscodeVideos() {
 
 functions['storeBrightcoveVideoDataInJson'] = storeBrightcoveVideoDataInJson;
 functions['retranscodeVideos'] = retranscodeVideos;
-functions['getVideosWithViewFromBrightCove'] = getVideosWithViewFromBrightCove;
 
 if (functions[FUNCTION_NAME]) {
     functions[FUNCTION_NAME]();
