@@ -1,0 +1,16 @@
+{
+  "name": "brightcove",
+  "version": "1.0.0",
+  "description": "",
+  "main": "brightcove_videos_bulk_retranscode.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eslint": "^5.16.0",
+    "fs": "0.0.1-security",
+    "superagent": "^5.0.5"
+  }
+}
