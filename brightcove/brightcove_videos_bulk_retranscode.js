@@ -1,5 +1,6 @@
 const superagent = require("superagent");
 const fs = require('fs');
+const _ = require('lodash');
 
 const brightcoveAuthApiUrl = "https://oauth.brightcove.com/v3/access_token";
 const brightcoveAccountApiUrl = "https://cms.api.brightcove.com/v1/accounts";
@@ -25,6 +26,10 @@ const pathDelimiter = "/";
 const brightcoveVideosDataDir = FILE_DIR_PATH
 const cache = {};
 const functions = {};
+
+function divideArrayInSubArrays(arr, subArrayLength) {
+    return _.chunk(arr, subArrayLength);
+}
 
 function createDirectory() {
     if (!fs.existsSync(brightcoveVideosDataDir)) {
@@ -81,28 +86,29 @@ async function getVideosFromBrightCove(offset = 0, limit = 1) {
         });
 }
 
-async function getVideosWithViewFromBrightCove(videoIds) {
-    const brightcoveVideosWithViewApiUrl = brightcoveDimensionApiUrl + `?accounts=${BRIGHTCOVE_ACCOUNT_ID}&dimensions=${dimensions}&where=video==${videoIds.join(",")}`;
+async function getVideosWithViewFromBrightCove(_videoIds) {
     try {
-        const retrieveVideos = await superagent.get(brightcoveVideosWithViewApiUrl).set({
-            [authHeader]: await getAccessTokenAuthHeader()
-        }).send().then(function (res) {
-            return res.body.items;
-        }).then((videos) => {
-            return videos.reduce((videosMap, video) => {
-                videosMap[video.video] = video.video_view;
-                return videosMap;
-            }, {});
-        });
-        return retrieveVideos;
-
+        let videoData = [];
+        const dividedVideoIds = divideArrayInSubArrays(_videoIds, 5);
+        for (const videoIds of dividedVideoIds) {
+            const brightcoveVideosWithViewApiUrl = brightcoveDimensionApiUrl + `?accounts=${BRIGHTCOVE_ACCOUNT_ID}&dimensions=${dimensions}&where=video==${videoIds.join(",")}`;
+            const retrieveVideos = await superagent.get(brightcoveVideosWithViewApiUrl).set({
+                    [authHeader]: await getAccessTokenAuthHeader()
+                })
+                .send()
+                .then(function (res) {
+                    return res.body.items;
+                });
+            videoData = videoData.concat(retrieveVideos);
+        }
+        return videoData.reduce((videosMap, video) => {
+            videosMap[video.video] = video.video_view;
+            return videosMap;
+        }, {});
     } catch (error) {
         console.log('get', error)
     }
-
 }
-
-
 
 async function ingestVideo(brightcoveVideo) {
     const brightcoveVideoIngestApiUrl = [brightcoveIngestApiUrl,
