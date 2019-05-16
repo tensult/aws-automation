@@ -194,7 +194,7 @@ async function storeBrightcoveVideoDataInJson() {
             let videos = await getVideosFromBrightCove(offset, limit);
             let videoViews = await getVideosWithViewFromBrightCove(getVideoIds(videos));
             videos.forEach((video) => {
-                video.views = videoViews[video.id];
+                video.views = videoViews[video.id] || 0;
                 video.status = 'notProcessed';
                 return video;
             });
