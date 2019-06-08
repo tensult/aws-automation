@@ -69,12 +69,15 @@ function ec2StopInstances(ec2InstanceIds) {
 function getEc2InstanceIds(ec2Reservations) {
     let instanceIds = [];
     ec2Reservations.map((reservation) => {
-        reservation.Instances.map((instance) => {
-            instanceIds.push(instance.InstanceId);
+        reservation.Instances.forEach((instance) => {
+            if(instance && instance.InstanceId) {
+                instanceIds.push(instance.InstanceId);
+            }
         });
     });
     return instanceIds;
 }
+
 
 // Get EC2 instances based on tag key or instance id
 function getEc2Instances(tagKey, instanceId, volumeId) {
