@@ -1,0 +1,16 @@
+{
+  "name": "brightcove",
+  "version": "1.0.0",
+  "description": "",
+  "main": "brightcove_videos_bulk_retranscode.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "json2csv": "^4.5.1",
+    "lodash": "^4.17.11",
+    "superagent": "^5.0.5"
+  }
+}
