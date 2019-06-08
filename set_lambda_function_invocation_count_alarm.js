@@ -11,15 +11,15 @@ const AWS = require('aws-sdk');
 const cli = require('cli');
 
 const cliArgs = cli.parse({
-    region: ['r', 'AWS region', 'string'],
-    filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
-    alarmActionArn: ['a', "Action to be trigger when alarm is breached", "string"],
-    duration: ['d', 'Duration for alarm to check the invocation count', "number", 60],
-    invocationCount: ['c', 'Maximum invocations in the specified duration', 'number', 15]
+region: ['r', 'AWS region', 'string'],
+filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
+alarmActionArn: ['a', "Action to be trigger when alarm is breached", "string"],
+duration: ['d', 'Duration for alarm to check the invocation count', "number", 60],
+invocationCount: ['c', 'Maximum invocations in the specified duration', 'number', 15]
 });
 
 if (!cliArgs.region || !cliArgs.alarmActionArn) {
-    cli.getUsage();
+cli.getUsage();
 }
 
 const filterRegex = new RegExp(cliArgs.filterName);
@@ -28,57 +28,57 @@ let isCompleted = false;
 let nextToken = undefined;
 
 async function setFunctionInvocationAlarms() {
-    await awsConfigHelper.updateConfig(cliArgs.region);
-    const lambda = new AWS.Lambda();
-    const cloudwatch = new AWS.CloudWatch();
-    while (!isCompleted) {
-        try {
-            const response = await lambda.listFunctions({
-                Marker: nextToken
-            }).promise();
-            if (response.Functions) {
-                for (let i = 0; i < response.Functions.length; i++) {
-                    const fn = response.Functions[i];
-                    if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
-                        console.log("Skipping function", fn.FunctionName);
-                        continue;
-                    }
-                    console.log(`Creating Invocation count Alarm for function: ${fn.FunctionName}`);
-                    await cloudwatch.putMetricAlarm({
-                        AlarmName: `${fn.FunctionName}_InvocationCount`,
-                        AlarmDescription: "Invocations count Alarm",
-                        Period: cliArgs.duration,
-                        MetricName: "Invocations",
-                        ActionsEnabled: true,
-                        AlarmActions: [
-                            cliArgs.alarmActionArn
-                        ],
-                        Namespace: "AWS/Lambda",
-                        Statistic: "Sum",
-                        Dimensions: [{
-                            "Name": "FunctionName",
-                            "Value": fn.FunctionName
-                        }],
-                        EvaluationPeriods: 1,
-                        DatapointsToAlarm: 1,
-                        Threshold: cliArgs.invocationCount,
-                        ComparisonOperator: "GreaterThanOrEqualToThreshold",
-                        TreatMissingData: "missing"
-                    }).promise();
-                    await wait(500);
+await awsConfigHelper.updateConfig(cliArgs.region);
+const lambda = new AWS.Lambda();
+const cloudwatch = new AWS.CloudWatch();
+while (!isCompleted) {
+    try {
+        const response = await lambda.listFunctions({
+            Marker: nextToken
+        }).promise();
+        if (response.Functions) {
+            for (let i = 0; i < response.Functions.length; i++) {
+                const fn = response.Functions[i];
+                if (cliArgs.filterName && !fn.FunctionName.match(filterRegex)) {
+                    console.log("Skipping function", fn.FunctionName);
+                    continue;
                 }
-                nextToken = response.NextMarker;
-                isCompleted = !nextToken;
-            } else {
-                isCompleted = true
+                console.log(`Creating Invocation count Alarm for function: ${fn.FunctionName}`);
+                await cloudwatch.putMetricAlarm({
+                    AlarmName: `${fn.FunctionName}_InvocationCount`,
+                    AlarmDescription: "Invocations count Alarm",
+                    Period: cliArgs.duration,
+                    MetricName: "Invocations",
+                    ActionsEnabled: true,
+                    AlarmActions: [
+                        cliArgs.alarmActionArn
+                    ],
+                    Namespace: "AWS/Lambda",
+                    Statistic: "Sum",
+                    Dimensions: [{
+                        "Name": "FunctionName",
+                        "Value": fn.FunctionName
+                    }],
+                    EvaluationPeriods: 1,
+                    DatapointsToAlarm: 1,
+                    Threshold: cliArgs.invocationCount,
+                    ComparisonOperator: "GreaterThanOrEqualToThreshold",
+                    TreatMissingData: "missing"
+                }).promise();
+                await wait(500);
             }
-        } catch (error) {
-            if (error.code === 'ThrottlingException') {
-                await wait(2000);
-            } else {
-                throw error;
-            }
+            nextToken = response.NextMarker;
+            isCompleted = !nextToken;
+        } else {
+            isCompleted = true
+        }
+    } catch (error) {
+        if (error.code === 'ThrottlingException') {
+            await wait(2000);
+        } else {
+            throw error;
         }
     }
+}
 }
 setFunctionInvocationAlarms();
