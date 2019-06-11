@@ -18,37 +18,41 @@ if (!cliArgs.region || !cliArgs.listenerArn) {
 }
 
 
-async function updateElbListenerRuleForRedirectUrl() {
-    await awsConfigHelper.updateConfig(cliArgs.region);
-    const elbV2 = new AWS.ELBv2();
+async function createElbListenerRuleForRedirectUrl() {
+    try {
+        await awsConfigHelper.updateConfig(cliArgs.region);
+        const elbV2 = new AWS.ELBv2();
 
-    return await elbV2.createRule({
-        Actions: [
-            {
-                Type: "redirect",
-                RedirectConfig: {
-                    StatusCode: "HTTP_301",
-                    Host: cliArgs.redirectHost,
-                    Path: cliArgs.path,
-                    Port: '443',
-                    Protocol: 'HTTPS',
-                    Query: cliArgs.query
+        return await elbV2.createRule({
+            Actions: [
+                {
+                    Type: "redirect",
+                    RedirectConfig: {
+                        StatusCode: "HTTP_301",
+                        Host: cliArgs.redirectHost,
+                        Path: cliArgs.path,
+                        Port: '443',
+                        Protocol: 'HTTPS',
+                        Query: cliArgs.query
+                    }
                 }
-            }
-        ],
-        Conditions: [
-            {
-                "Field": "host-header",
-                "Values": [cliArgs.host]
+            ],
+            Conditions: [
+                {
+                    "Field": "host-header",
+                    "Values": [cliArgs.host]
 
-            }
-        ],
-        ListenerArn: cliArgs.listenerArn,
-        Priority: cliArgs.priority
+                }
+            ],
+            ListenerArn: cliArgs.listenerArn,
+            Priority: cliArgs.priority
 
-    }).promise();
+        }).promise();
+    } catch (error) {
+        console.error(error);
+    };
 }
 
 
-updateElbListenerRuleForRedirectUrl();
+createElbListenerRuleForRedirectUrl();
 
