@@ -49,15 +49,17 @@ async function stopRdsInstancesByTag() {
         for (const instance of dbInstances) {
             const tags = await getAllTagsOfRdsResource(instance.DBInstanceArn)
             if (tags.find(o => o.Key.toLowerCase() === 'donotstop')) {
-                console.log('stoppable arn ', instance.DBInstanceArn);
-                const response = await stopRdsInstance(instance.DBInstanceIdentifier);
-                console.log('Stopped instance ', JSON.stringify(response, null, 2));
+                continue;
             }
+            console.log('stoppable instance arn ', instance.DBInstanceArn);
+            const response = await stopRdsInstance(instance.DBInstanceIdentifier);
+            console.log('Stopped instance ', JSON.stringify(response, null, 2));
         }
     } catch (error) {
         throw error
     }
 }
+// stopRdsInstancesByTag()
 
 exports.handler = async (event) => {
     try {
