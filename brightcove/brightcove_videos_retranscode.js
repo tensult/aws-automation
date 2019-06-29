@@ -15,10 +15,7 @@ const BRIGHTCOVE_ACCOUNT_ID = process.env.BRIGHTCOVE_ACCOUNT_ID;
 const FILE_DIR_PATH = process.env.FILE_DIR_PATH;
 const FILE_PATH = process.env.FILE_PATH;
 const FUNCTION_NAME = process.env.FUNCTION_NAME;
-const INGETION_PROFILE_MORE_VIEWS = process.env.INGETION_PROFILE_FOR_MORE_VIEWS;
-const INGETION_PROFILE_LESS_VIEWS = process.env.INGETION_PROFILE_FOR_LESS_VIEWS;
-const BRIGHTCOVE_VIDEO_MIN_VIEWS = process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS ?
-    parseInt(process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS) : 0;
+const INGETION_PROFILE = process.env.INGETION_PROFILE;
 
 
 const videosApiName = "videos";
@@ -377,15 +374,15 @@ async function storeBrightcoveVideoDataInJson() {
     }
 }
 
-async function retranscodeVideosInLoop(videos, profile) {
+async function retranscodeVideosInLoop(videos, ingetion_profile) {
     try {
         for (const video of videos) {
             // console.log('Transcoding video\n', video.id);
             if (video.status !== "notProcessed") {
                 continue;
             }
-            console.log("profile at ingestvideo", profile);
-            const ingestedVideo = await ingestVideo(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+            console.log("profile at ingestvideo", ingetion_profile);
+            const ingestedVideo = await ingestVideo(BRIGHTCOVE_ACCOUNT_ID, ingetion_profile, video);
             console.log(video.id, 'injestedVideoResponse\n', ingestedVideo);
             if (!ingestedVideo) {
                 video.status = "failed"
@@ -401,32 +398,34 @@ async function retranscodeVideosInLoop(videos, profile) {
     }
 }
 
-async function waitForRetranscodeToComplete(videos, profile) {
+async function waitForRetranscodeToComplete(videos, ingested_profile) {
+    console.log(typeof videos);
     try {
-        let pendingVideos = videos;
-        while (pendingVideos.length) {
-            let newPendingVideos = [];
-            console.log('pending videos', pendingVideos);
-            for (const video of pendingVideos) {
+        while (videos.length) {
+            console.log('video count',videos.length);
+            let pendingVideos = [];
+            for (const video of videos) {
                 console.log('Video ', video.id);
                 if (video.status === "failed" || video.status === "transcoded") {
                     continue;
                 }
-                const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+                const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, ingested_profile, video);
                 console.log('ingested job response', ingestedJobResponse);
                 if (ingestedJobResponse &&
-                    ingestedJobResponse &&
                     ingestedJobResponse.state === 'finished') {
                     console.log("Processed video status", ingestedJobResponse.state);
                     video.status = 'transcoded';
                 } else {
-                    newPendingVideos.push(video);
+                    pendingVideos.push(video);
                 }
             }
-            if (newPendingVideos.length) {
-                await wait(15000);
+            console.log('pending videos count', pendingVideos.length)
+            if (pendingVideos.length) {
+                console.log('under pending videos')
+                await wait(10000);
+            } else {
+                return;
             }
-            pendingVideos = newPendingVideos;
         }
     } catch (error) {
         console.log('error while gettingStatus', error);
@@ -438,30 +437,19 @@ async function retranscodeVideos() {
     try {
         let finalStatus = "done";
         const videos = JSON.parse(fs.readFileSync(FILE_PATH, 'utf8'));
-        const filteredVideosForMoreViews = [];
-        const filteredVideosForLessViews = [];
+        const filteredVideosWithViews = [];
         videos.forEach((video) => {
-            if (video.views >= BRIGHTCOVE_VIDEO_MIN_VIEWS && video.status === 'notProcessed') {
-                filteredVideosForMoreViews.push(video);
-            } else if (video.views < BRIGHTCOVE_VIDEO_MIN_VIEWS && video.status === 'notProcessed') {
-                filteredVideosForLessViews.push(video);
+            if (video.status === 'notProcessed') {
+                filteredVideosWithViews.push(video);
             } else {
                 console.log('Skipping video:', video.id, video.name);
             }
         });
-
-        console.log('filteredVideosForLessViews', filteredVideosForLessViews);
-        console.log('filteredVideosForMoreViews', filteredVideosForMoreViews);
-
-        await retranscodeVideosInLoop(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
+        await retranscodeVideosInLoop(filteredVideosWithViews, INGETION_PROFILE);
         console.log('Transcoding requests completed and starting checking status........');
-        await waitForRetranscodeToComplete(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
+        await waitForRetranscodeToComplete(filteredVideosWithViews, INGETION_PROFILE);
         console.log('get response of retranscoded videos.........');
-
-        await retranscodeVideosInLoop(filteredVideosForLessViews, INGETION_PROFILE_LESS_VIEWS);
-        console.log('Transcoding requests completed and starting checking status........');
-        await waitForRetranscodeToComplete(filteredVideosForLessViews, INGETION_PROFILE_LESS_VIEWS);
-        console.log('get response of retranscoded videos.........');
+        // fs.writeFileSync(FILE_DIR_PATH + "." + finalStatus, JSON.stringify(videos, null, 2));
         fs.writeFileSync(FILE_PATH, JSON.stringify(videos, null, 2));
         fs.renameSync(FILE_PATH, FILE_PATH + "." + finalStatus);
     } catch (error) {

@@ -135,87 +135,7 @@ async function ingestVideo(brightcoveAccountId, ingestionProfile, brightcoveVide
         return undefined;
     }
 };
-// ingestVideo('multi-platform-standard-static-with-mp4-retranscode',
-// {
-//     "id": "6052498735001",
-//     "account_id": "5498268425001",
-//     "ad_keys": null,
-//     "clip_source_video_id": null,
-//     "complete": true,
-//     "created_at": "2019-06-26T12:54:54.338Z",
-//     "created_by": {
-//         "type": "api_key",
-//         "email": "brightcove_ml@asianetnews.in"
-//     },
-//     "cue_points": [],
-//     "custom_fields": {
-//         "video_thumb": "http://static.asianetnews.com/images/01de9xyfq74bdek3dkxe5t89n2/jayarajan-png.jpg"
-//     },
-//     "delivery_type": "static_origin",
-//     "description": "james mathew mla against mv govindan in nri suicide",
-//     "digital_master_id": "6052495640001",
-//     "duration": 87722,
-//     "economics": "AD_SUPPORTED",
-//     "folder_id": null,
-//     "geo": null,
-//     "has_digital_master": true,
-//     "images": {
-//         "thumbnail": {
-//             "asset_id": "6052498086001",
-//             "remote": false,
-//             "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/744/5498268425001_6052498086001_6052498735001-th.jpg?pubId=5498268425001&videoId=6052498735001",
-//             "sources": [
-//                 {
-//                     "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/744/5498268425001_6052498086001_6052498735001-th.jpg?pubId=5498268425001&videoId=6052498735001",
-//                     "height": 90,
-//                     "width": 123
-//                 },
-//                 {
-//                     "src": "https://brightcove.hs.llnwd.net/v2/unsecured/media/5498268425001/201906/744/5498268425001_6052498086001_6052498735001-th.jpg?pubId=5498268425001&videoId=6052498735001",
-//                     "height": 90,
-//                     "width": 123
-//                 }
-//             ]
-//         },
-//         "poster": {
-//             "asset_id": "6052495266001",
-//             "remote": false,
-//             "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/744/5498268425001_6052495266001_6052498735001-vs.jpg?pubId=5498268425001&videoId=6052498735001",
-//             "sources": [
-//                 {
-//                     "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/744/5498268425001_6052495266001_6052498735001-vs.jpg?pubId=5498268425001&videoId=6052498735001",
-//                     "height": 576,
-//                     "width": 786
-//                 },
-//                 {
-//                     "src": "https://brightcove.hs.llnwd.net/v2/unsecured/media/5498268425001/201906/744/5498268425001_6052495266001_6052498735001-vs.jpg?pubId=5498268425001&videoId=6052498735001",
-//                     "height": 576,
-//                     "width": 786
-//                 }
-//             ]
-//         }
-//     },
-//     "link": {
-//         "url": "https://www.asianetnews.com/video/kerala-news/james-mathew-mla-against-mv-govindan-in-nri-suicide-ptpiu8"
-//     },
-//     "long_description": null,
-//     "name": "james mathew mla against mv govindan in nri suicide",
-//     "original_filename": "jayarajan.mov",
-//     "projection": null,
-//     "published_at": "2019-06-26T12:54:54.365Z",
-//     "reference_id": "01de9xmge1hvb7g8vr7qgg8y10",
-//     "schedule": null,
-//     "sharing": null,
-//     "state": "ACTIVE",
-//     "tags": [],
-//     "text_tracks": [],
-//     "updated_at": "2019-06-26T13:01:23.202Z",
-//     "updated_by": {
-//         "type": "api_key",
-//         "email": "brightcove_ml@asianetnews.in"
-//     },
-//     "views": 241,
-//     "status": "notProcessed"}).then((res)=> {console.log('ingestedVideo\n', res)});
+
 
 async function getIngestedJob(brightcoveAccountId, ingestionProfile, brightcoveVideo) {
     if (!brightcoveVideo || !brightcoveVideo.jobId) {
@@ -247,88 +167,6 @@ async function getIngestedJob(brightcoveAccountId, ingestionProfile, brightcoveV
     }
 
 }
-// getIngestedJob('5498268425001', 'multi-platform-standard-static-with-mp4-retranscode',{
-//     "id": "6049886531001",
-//     "account_id": "5498268425001",
-//     "ad_keys": null,
-//     "clip_source_video_id": null,
-//     "complete": true,
-//     "created_at": "2019-06-19T08:01:29.591Z",
-//     "created_by": {
-//       "type": "api_key",
-//       "email": "brightcove_ml@asianetnews.in"
-//     },
-//     "cue_points": [],
-//     "custom_fields": {
-//       "video_thumb": "http://static.asianetnews.com/images/01ddqc8nzrcm5w7m35gbe7dkn2/binoy-update-png.jpg"
-//     },
-//     "delivery_type": "static_origin",
-//     "description": "binoy kodiyeri tries for anticipatory bail",
-//     "digital_master_id": "6049885380001",
-//     "duration": 90793,
-//     "economics": "AD_SUPPORTED",
-//     "folder_id": null,
-//     "geo": null,
-//     "has_digital_master": true,
-//     "images": {
-//       "thumbnail": {
-//         "asset_id": "6049886840001",
-//         "remote": false,
-//         "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/3719/5498268425001_6049886840001_6049886531001-th.jpg?pubId=5498268425001&videoId=6049886531001",
-//         "sources": [
-//           {
-//             "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/3719/5498268425001_6049886840001_6049886531001-th.jpg?pubId=5498268425001&videoId=6049886531001",
-//             "height": 90,
-//             "width": 123
-//           },
-//           {
-//             "src": "https://brightcove.hs.llnwd.net/v2/unsecured/media/5498268425001/201906/3719/5498268425001_6049886840001_6049886531001-th.jpg?pubId=5498268425001&videoId=6049886531001",
-//             "height": 90,
-//             "width": 123
-//           }
-//         ]
-//       },
-//       "poster": {
-//         "asset_id": "6049885005001",
-//         "remote": false,
-//         "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/3719/5498268425001_6049885005001_6049886531001-vs.jpg?pubId=5498268425001&videoId=6049886531001",
-//         "sources": [
-//           {
-//             "src": "http://brightcove.vo.llnwd.net/v1/unsecured/media/5498268425001/201906/3719/5498268425001_6049885005001_6049886531001-vs.jpg?pubId=5498268425001&videoId=6049886531001",
-//             "height": 576,
-//             "width": 786
-//           },
-//           {
-//             "src": "https://brightcove.hs.llnwd.net/v2/unsecured/media/5498268425001/201906/3719/5498268425001_6049885005001_6049886531001-vs.jpg?pubId=5498268425001&videoId=6049886531001",
-//             "height": 576,
-//             "width": 786
-//           }
-//         ]
-//       }
-//     },
-//     "link": {
-//       "url": "https://www.asianetnews.com/video/kerala-news/binoy-kodiyeri-tries-for-anticipatory-bail-ptc6jc"
-//     },
-//     "long_description": null,
-//     "name": "binoy kodiyeri tries for anticipatory bail",
-//     "original_filename": "binoy-update.mov",
-//     "projection": null,
-//     "published_at": "2019-06-19T08:01:29.638Z",
-//     "reference_id": "01ddqc1gz9kc730t2s83k79ag9",
-//     "schedule": null,
-//     "sharing": null,
-//     "state": "ACTIVE",
-//     "tags": [],
-//     "text_tracks": [],
-//     "updated_at": "2019-06-26T03:03:42.368Z",
-//     "updated_by": {
-//       "type": "api_key",
-//       "email": "brightcove_ml@asianetnews.in"
-//     },
-//     "views": 1655,
-//     "status": "notProcessed"
-//   }
-// );
 
 async function getBrightcoveVideosCounts() {
     const brightcoveVideoApiUrl = [brightcoveAccountApiUrl,
@@ -377,15 +215,15 @@ async function storeBrightcoveVideoDataInJson() {
     }
 }
 
-async function retranscodeVideosInLoop(videos, profile) {
+async function retranscodeVideosInLoop(videos, ingetion_profile) {
     try {
         for (const video of videos) {
-            // console.log('Transcoding video\n', video.id);
+            console.log('Transcoding video\n', video.id);
             if (video.status !== "notProcessed") {
                 continue;
             }
-            console.log("profile at ingestvideo", profile);
-            const ingestedVideo = await ingestVideo(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+            console.log("profile at ingestvideo", ingetion_profile);
+            const ingestedVideo = await ingestVideo(BRIGHTCOVE_ACCOUNT_ID, ingetion_profile, video);
             console.log(video.id, 'injestedVideoResponse\n', ingestedVideo);
             if (!ingestedVideo) {
                 video.status = "failed"
@@ -401,21 +239,18 @@ async function retranscodeVideosInLoop(videos, profile) {
     }
 }
 
-async function waitForRetranscodeToComplete(videos, profile) {
+async function waitForRetranscodeToComplete(videos, ingetion_profile) {
     try {
-        let pendingVideos = videos;
-        while (pendingVideos.length) {
+        while (videos.length) {
             let newPendingVideos = [];
-            console.log('pending videos', pendingVideos);
-            for (const video of pendingVideos) {
+            for (const video of videos) {
                 console.log('Video ', video.id);
                 if (video.status === "failed" || video.status === "transcoded") {
                     continue;
                 }
-                const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+                const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, ingetion_profile, video);
                 console.log('ingested job response', ingestedJobResponse);
                 if (ingestedJobResponse &&
-                    ingestedJobResponse &&
                     ingestedJobResponse.state === 'finished') {
                     console.log("Processed video status", ingestedJobResponse.state);
                     video.status = 'transcoded';
@@ -423,10 +258,12 @@ async function waitForRetranscodeToComplete(videos, profile) {
                     newPendingVideos.push(video);
                 }
             }
-            if (newPendingVideos.length) {
-                await wait(15000);
+            if (pendingVideos.length) {
+                console.log('under pending videos')
+                await wait(10000);
+            } else {
+                return;
             }
-            pendingVideos = newPendingVideos;
         }
     } catch (error) {
         console.log('error while gettingStatus', error);
@@ -449,10 +286,6 @@ async function retranscodeVideos() {
                 console.log('Skipping video:', video.id, video.name);
             }
         });
-
-        console.log('filteredVideosForLessViews', filteredVideosForLessViews);
-        console.log('filteredVideosForMoreViews', filteredVideosForMoreViews);
-
         await retranscodeVideosInLoop(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
         console.log('Transcoding requests completed and starting checking status........');
         await waitForRetranscodeToComplete(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
