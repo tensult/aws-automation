@@ -1,6 +1,8 @@
 const superagent = require("superagent");
 const fs = require('fs');
 const _ = require('lodash');
+const pageNumber = process.env.PAGENUMBER;
+
 
 const brightcoveAuthApiUrl = "https://oauth.brightcove.com/v3/access_token";
 const brightcoveAccountApiUrl = "https://cms.api.brightcove.com/v1/accounts";
@@ -11,9 +13,10 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BRIGHTCOVE_ACCOUNT_ID = process.env.BRIGHTCOVE_ACCOUNT_ID;
 const FILE_DIR_PATH = process.env.FILE_DIR_PATH;
-const FILE_NAME = process.env.FILE_NAME;
+const FILE_PATH = process.env.FILE_PATH;
 const FUNCTION_NAME = process.env.FUNCTION_NAME;
-const INGETION_PROFILE = process.env.INGETION_PROFILE;
+const INGETION_PROFILE_MORE_VIEWS = process.env.INGETION_PROFILE_FOR_MORE_VIEWS;
+const INGETION_PROFILE_LESS_VIEWS = process.env.INGETION_PROFILE_FOR_LESS_VIEWS;
 const BRIGHTCOVE_VIDEO_MIN_VIEWS = process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS ?
     parseInt(process.env.BRIGHTCOVE_VIDEO_MIN_VIEWS) : 0;
 
@@ -93,12 +96,10 @@ async function getVideosWithViewFromBrightCove(_videoIds) {
         for (const videoIds of dividedVideoIds) {
             const brightcoveVideosWithViewApiUrl = brightcoveDimensionApiUrl + `?accounts=${BRIGHTCOVE_ACCOUNT_ID}&dimensions=${dimensions}&where=video==${videoIds.join(",")}`;
             const retrieveVideos = await superagent.get(brightcoveVideosWithViewApiUrl).set({
-                    [authHeader]: await getAccessTokenAuthHeader()
-                })
-                .send()
-                .then(function (res) {
-                    return res.body.items;
-                });
+                [authHeader]: await getAccessTokenAuthHeader()
+            }).send().then(function (res) {
+                return res.body.items;
+            });
             videoData = videoData.concat(retrieveVideos);
         }
         return videoData.reduce((videosMap, video) => {
@@ -110,39 +111,16 @@ async function getVideosWithViewFromBrightCove(_videoIds) {
     }
 }
 
-async function ingestVideo(brightcoveVideo) {
-    const brightcoveVideoIngestApiUrl = [brightcoveIngestApiUrl,
-        BRIGHTCOVE_ACCOUNT_ID,
-        videosApiName,
-        brightcoveVideo.id,
-        "ingest-requests"
-    ].join(pathDelimiter);
-    return superagent.post(brightcoveVideoIngestApiUrl)
-        .set({
-            [authHeader]: await getAccessTokenAuthHeader()
-        })
-        .send({
-            master: {
-                use_archived_master: true
-            },
-            profile: INGETION_PROFILE
-        }).then(function (res) {
-            return res.body;
-        }).catch(function (err) {
-            console.log('Error while ingesting video \n', err);
-            // throw err;
-        });
-};
-
-async function getStatusOfVideoIngestedJob(brightcoveVideo) {
+async function ingestVideo(brightcoveAccountId, ingestionProfile, brightcoveVideo) {
     try {
-        const brightcoveVideoIngestJobStatusCheckApiUrl = [brightcoveIngestApiUrl,
-            BRIGHTCOVE_ACCOUNT_ID,
+        const brightcoveVideoIngestApiUrl = [brightcoveIngestApiUrl,
+            brightcoveAccountId,
             videosApiName,
             brightcoveVideo.id,
-            brightcoveVideo.jobId,
+            "ingest-requests"
         ].join(pathDelimiter);
-        return superagent.post(brightcoveVideoIngestJobStatusCheckApiUrl)
+        // console.log("brightcoveVideoIngestApiUrl", brightcoveVideoIngestApiUrl);
+        const response = await superagent.post(brightcoveVideoIngestApiUrl)
             .set({
                 [authHeader]: await getAccessTokenAuthHeader()
             })
@@ -150,13 +128,39 @@ async function getStatusOfVideoIngestedJob(brightcoveVideo) {
                 master: {
                     use_archived_master: true
                 },
-                profile: "multi-platform-custom-2audio-5video"
-            }).then(function (res) {
-                return res.body;
-            }).catch(function (err) {
-                console.log(err);
-                throw err;
+                profile: ingestionProfile
+            })
+        return response.body;
+    } catch (error) {
+        return undefined;
+    }
+};
+
+
+async function getIngestedJob(brightcoveAccountId, ingestionProfile, brightcoveVideo) {
+    if (!brightcoveVideo || !brightcoveVideo.jobId) {
+        return;
+    }
+    try {
+        const brightcoveVideoIngestJobStatusCheckApiUrl = [brightcoveAccountApiUrl,
+            brightcoveAccountId,
+            videosApiName,
+            brightcoveVideo.id,
+            'ingest_jobs',
+            brightcoveVideo.jobId,
+        ].join(pathDelimiter);
+        const response = await superagent.get(brightcoveVideoIngestJobStatusCheckApiUrl)
+            .set({
+                [authHeader]: await getAccessTokenAuthHeader()
+            })
+            .send({
+                master: {
+                    use_archived_master: true
+                },
+                profile: ingestionProfile
             });
+
+        return response.body;
     } catch (error) {
         throw error;
     }
@@ -189,12 +193,12 @@ async function storeBrightcoveVideoDataInJson() {
         let offset = 0;
         const limit = 20;
         const brightcoveVideosCounts = await getBrightcoveVideosCounts();
-        var numberOfPages = Math.ceil(brightcoveVideosCounts.count / limit);
+        var numberOfPages = pageNumber || Math.ceil(brightcoveVideosCounts.count / limit);
         while (numberOfPages) {
             let videos = await getVideosFromBrightCove(offset, limit);
             let videoViews = await getVideosWithViewFromBrightCove(getVideoIds(videos));
             videos.forEach((video) => {
-                video.views = videoViews[video.id] || 0;
+                video.views = (videoViews && videoViews[video.id]) || 0;
                 video.status = 'notProcessed';
                 return video;
             });
@@ -209,42 +213,84 @@ async function storeBrightcoveVideoDataInJson() {
     }
 }
 
-async function retranscodeVideos() {
+async function retranscodeVideosInLoop(videos, profile) {
     try {
-        const videos = JSON.parse(fs.readFileSync(FILE_NAME, 'utf8'));
-        let finalStatus = "done";
         for (const video of videos) {
-            if (video.status === 'notProcessed' && video.views >= BRIGHTCOVE_VIDEO_MIN_VIEWS) {
-                console.log("Processing video:", video.id, video.status, video.views);
-                const ingestedVideo = await ingestVideo(video);
-                if (!ingestVideo) {
-                    video.status = "failed"
-                    finalStatus = "failed";
-                    continue;
-                }
-                video.jobId = ingestedVideo.id;
-            } else {
-                console.log("Skipping video:", video.id, video.status, video.views);
-            }
-        }
-        for (const video of videos) {
-            if (video.status === "failed") {
+            if (video.status !== "notProcessed") {
                 continue;
             }
-            while (true) {
-                const ingestedJob = await getStatusOfVideoIngestedJob(video);
-                if (ingestedJob.id !== 'finished') {
-                    await wait(30000);
+            const ingestedVideo = await ingestVideo(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+            if (!ingestedVideo) {
+                video.status = "failed"
+                continue;
+            } else {
+                video.jobId = ingestedVideo.id;
+                video.status = "processing";
+            }
+        }
+    } catch (error) {
+        console.log('error while ingesting', error);
+        throw error;
+    }
+}
+
+async function waitForRetranscodeToComplete(videos, profile) {
+    try {
+        let pendingVideos = videos;
+        let count = 0;
+        while (pendingVideos.length) {
+            let newPendingVideos = [];
+            for (const video of pendingVideos) {
+                if (video.status === 'failed' || video.status === 'transcoded' || video.error_code === 'TruncatedFileError' || video.error_code === 'UnreadableFileError') {
+                    continue;
+                }
+                const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, profile, video);
+                if (ingestedJobResponse &&
+                    ingestedJobResponse.state === 'finished') {
+                    video.status = 'transcoded';
                 } else {
-                    break;
+                    newPendingVideos.push(video);
                 }
             }
-            video.status === 'transcoded';
+
+            if (newPendingVideos.length) {
+                count++;
+                if (count === 15) {
+                    return;
+                }
+                await wait(15000);
+            }
+            pendingVideos = newPendingVideos;
         }
-        fs.writeFileSync(FILE_DIR_PATH + "." + finalStatus, JSON.stringify(videos, null, 2));
-        console.log("Completed", FILE_DIR_PATH);
     } catch (error) {
-        console.error(error);
+        throw error;
+    }
+
+}
+async function retranscodeVideos() {
+    try {
+        let finalStatus = "done";
+        const videos = JSON.parse(fs.readFileSync(FILE_PATH, 'utf8'));
+        const filteredVideosForMoreViews = [];
+        const filteredVideosForLessViews = [];
+        videos.forEach((video) => {
+            if (video.views >= BRIGHTCOVE_VIDEO_MIN_VIEWS && video.status === 'notProcessed') {
+                filteredVideosForMoreViews.push(video);
+            } else if (video.views < BRIGHTCOVE_VIDEO_MIN_VIEWS && video.status === 'notProcessed') {
+                filteredVideosForLessViews.push(video);
+            } else {
+                console.log('Skipping video:', video.id, video.name);
+            }
+        });
+
+        await retranscodeVideosInLoop(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
+        await waitForRetranscodeToComplete(filteredVideosForMoreViews, INGETION_PROFILE_MORE_VIEWS);
+        await retranscodeVideosInLoop(filteredVideosForLessViews, INGETION_PROFILE_LESS_VIEWS);
+        await waitForRetranscodeToComplete(filteredVideosForLessViews, INGETION_PROFILE_LESS_VIEWS);
+        fs.writeFileSync(FILE_PATH, JSON.stringify(videos, null, 2));
+        fs.renameSync(FILE_PATH, FILE_PATH + "." + finalStatus);
+    } catch (error) {
+        console.error('error while retranscoding videos', error);
     }
 }
 
