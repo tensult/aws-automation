@@ -160,7 +160,6 @@ async function getIngestedJob(brightcoveAccountId, ingestionProfile, brightcoveV
                 profile: ingestionProfile
             });
 
-        console.log('video status response', response.body);
         return response.body;
     } catch (error) {
         throw error;
@@ -246,10 +245,8 @@ async function waitForRetranscodeToComplete(videos, profile) {
                     continue;
                 }
                 const ingestedJobResponse = await getIngestedJob(BRIGHTCOVE_ACCOUNT_ID, profile, video);
-                console.log('ingested job response', ingestedJobResponse);
                 if (ingestedJobResponse &&
                     ingestedJobResponse.state === 'finished') {
-                    console.log("Processed video status", ingestedJobResponse.state);
                     video.status = 'transcoded';
                 } else {
                     newPendingVideos.push(video);
@@ -266,7 +263,6 @@ async function waitForRetranscodeToComplete(videos, profile) {
             pendingVideos = newPendingVideos;
         }
     } catch (error) {
-        console.log('error while gettingStatus', error);
         throw error;
     }
 
