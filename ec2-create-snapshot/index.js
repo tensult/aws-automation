@@ -211,6 +211,7 @@ exports.handler = async (event) => {
         // When Instance is stopped, we will take root volume snapshot first.
         else if (event['detail-type'] === 'EC2 Instance State-change Notification' && event.detail['instance-id'] && event.detail.state === 'stopped') {
             await handleEc2CreateSnapshotForRootVolume(event.detail['instance-id']);
+            await handleStartEc2Instance(ec2Reservations);
         }
         // When Root volume snapshot is failed, we will send SNS message for manual investigation and start the instance
         else if (event['detail-type'] === 'EBS Snapshot Notification' && event.detail.event === 'createSnapshot' && event.detail.result === 'failed') {
