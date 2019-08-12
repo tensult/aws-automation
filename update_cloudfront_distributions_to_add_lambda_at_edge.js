@@ -15,7 +15,8 @@ const cliArgs = Cli.parse({
     cloudfrontDistCnamePrefix: ['p', 'cloudfront dist cname prefix', 'string']
 })
 
-if (!cliArgs.input || !cliArgs.lambdaArn || !cliArgs.cloudfrontDistCnamePrefix) {
+if (!cliArgs.region || !cliArgs.lambdaArn || !cliArgs.cloudfrontDistCnamePrefix) {
+    console.log(cliArgs)
     Cli.getUsage();
 }
 
@@ -87,8 +88,10 @@ function updateCloudfrontDist(id, distConfig) {
         distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.WhitelistedNames.Quantity += 1;
     } else if (distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.Forward === 'none') {
         distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.Forward = 'whitelist';
-        distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.WhitelistedNames.Items = ['X-Session'];
-        distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.WhitelistedNames.Quantity = 1;
+        distConfig.DistributionConfig.DefaultCacheBehavior.ForwardedValues.Cookies.WhitelistedNames = {
+            Items: ['X-Session'],
+            Quantity: 1
+        };
     }
     const params = {
         DistributionConfig: distConfig.DistributionConfig,
