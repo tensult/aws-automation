@@ -2,8 +2,8 @@
  * Steps to execute:
  * 1. Set AWS profile in your cli environment for which account you want to run
  * 2. Run the following commands: 
- * $ npm i aws-sdk cli
- * $ node update_cloudfront_distributions_to_add_lambda_at_edge.js -r <region> -l <lambda_arn> -p <cloudfront_dist_cname_prefix>
+ *    $ npm i aws-sdk cli
+ *    $ node update_cloudfront_distributions_to_add_lambda_at_edge.js -r <region> -l <lambda_arn> -p <cloudfront_dist_cname_prefix>
  */
 
 const AWS = require('aws-sdk');
