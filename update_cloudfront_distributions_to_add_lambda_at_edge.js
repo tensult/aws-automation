@@ -1,17 +1,27 @@
 /**
- * Run the following command to execute this script: 
- * $ AWS_PROFILE=<AWS_PROFILE> REGION=<REGION> LAMBDA_ARN=<LAMBDA_ARN> CLOUDFRONT_DIST_CNAME_PREFIX=<CLOUDFRONT_DIST_CNAME_PREFIX> node index.js
+ * Steps to execute:
+ * 1. Set AWS profile in your cli environment for which account you want to run
+ * 2. Run the following commands: 
+ * $ npm i aws-sdk cli
+ * $ node update_cloudfront_distributions_to_add_lambda_at_edge.js -r <region> -l <lambda_arn> -p <cloudfront_dist_cname_prefix>
  */
 
 const AWS = require('aws-sdk');
+const Cli = require('cli');
 
-const REGION = process.env.REGION;
-const LAMBDA_ARN = process.env.LAMBDA_ARN;
-const CLOUDFRONT_DIST_CNAME_PREFIX = process.env.CLOUDFRONT_DIST_CNAME_PREFIX;
+const cliArgs = Cli.parse({
+    region: ['r', 'AWS region name', 'string', 'ap-south-1'],
+    lambdaArn: ['l', 'Lambda ARN', 'string'],
+    cloudfrontDistCnamePrefix: ['p', 'cloudfront dist cname prefix', 'string']
+})
 
-if (!REGION || !LAMBDA_ARN || !CLOUDFRONT_DIST_CNAME_PREFIX) {
-    throw Error('Pass required values to execute this script');
+if (!cliArgs.input || !cliArgs.lambdaArn || !cliArgs.cloudfrontDistCnamePrefix) {
+    Cli.getUsage();
 }
+
+const REGION = cliArgs.region;
+const LAMBDA_ARN = cliArgs.lambdaArn;
+const CLOUDFRONT_DIST_CNAME_PREFIX = cliArgs.cloudfrontDistCnamePrefix;
 
 AWS.config.update({
     region: REGION
