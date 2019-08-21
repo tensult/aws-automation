@@ -25,7 +25,7 @@ exports.handler = async (event) => {
             return;
         }
         await setRetentionOfCloudwatchLogGroup(logGroupName, 14);
-        console.log('Retention has been set to ' + logGroupName + 'for 2 weeks');
+        console.log('Retention has been set to ' + logGroupName + ' for 2 weeks');
         return;
     } catch (error) {
         throw error;
