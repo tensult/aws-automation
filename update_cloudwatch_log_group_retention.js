@@ -6,6 +6,11 @@
  * We can use this script to set retention for all our log groups at once.
  * You can know more about CloudWatch log group retention here: 
  * https://medium.com/tensult/manage-aws-cloudwatch-log-group-retention-using-automation-26add478b0c5
+ * 
+ * Command:
+ * set AWS environment variables using: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+ * then execute following:
+ * node update_cloudwatch_log_group_retention.js -r <aws-region> -l <logGroupNamePrefix> -R <retention-period-in-days>
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
