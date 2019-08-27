@@ -20,7 +20,8 @@ const cli = require('cli');
 const cliArgs = cli.parse({
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string'],
-    retention: ['R', 'Log group retention period in days', 'number', '14']
+    retention: ['R', 'Log group retention period in days', 'number', '14'],
+    setOnlyIfUnset: ['s', 'Set Log group retention period only if unset', 'boolean', 'false'],
 });
 
 if(!cliArgs.region) {
@@ -44,10 +45,12 @@ async function setLogGroupRetention() {
             if (response.logGroups) {
                 for (let i = 0; i < response.logGroups.length; i++) {
                     const logGroup = response.logGroups[i];
-                    if (logGroup.retentionInDays === cliArgs.retention) {
+                    if (logGroup.retentionInDays === cliArgs.retention || 
+                        (cliArgs.setOnlyIfUnset && logGroup.retentionInDays)) {
                         continue;
                     }
                     console.log(`Setting retention period of ${cliArgs.retention} day for log group: ${logGroup.logGroupName}`);
+
                     await cloudwatchLogs.putRetentionPolicy({
                         logGroupName: logGroup.logGroupName,
                         retentionInDays: cliArgs.retention
