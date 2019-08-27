@@ -28,7 +28,6 @@ if(!cliArgs.region) {
     cli.getUsage();
 }
 
-
 async function setLogGroupRetention() {
     await awsConfigHelper.updateConfig(cliArgs.region);
     const cloudwatchLogs = new AWS.CloudWatchLogs();
