@@ -11,6 +11,8 @@
  * set AWS environment variables using: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
  * then execute following:
  * node update_cloudwatch_log_group_retention.js -r <aws-region> -l <logGroupNamePrefix> -R <retention-period-in-days>
+ * Set only if retention is unset:
+ * node update_cloudwatch_log_group_retention.js -r <aws-region> -l <logGroupNamePrefix> -R <retention-period-in-days> -s
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const wait = require('./util/wait');
@@ -21,10 +23,10 @@ const cliArgs = cli.parse({
     region: ['r', 'AWS region', 'string'],
     logGroupPrefix: ['l', 'Log group prefix', 'string'],
     retention: ['R', 'Log group retention period in days', 'number', '14'],
-    setOnlyIfUnset: ['s', 'Set Log group retention period only if unset', 'boolean', 'false'],
+    setOnlyIfUnset: ['s', 'Set Log group retention period only if unset', 'boolean'],
 });
 
-if(!cliArgs.region) {
+if (!cliArgs.region) {
     cli.getUsage();
 }
 
@@ -44,7 +46,7 @@ async function setLogGroupRetention() {
             if (response.logGroups) {
                 for (let i = 0; i < response.logGroups.length; i++) {
                     const logGroup = response.logGroups[i];
-                    if (logGroup.retentionInDays === cliArgs.retention || 
+                    if (logGroup.retentionInDays === cliArgs.retention ||
                         (cliArgs.setOnlyIfUnset && logGroup.retentionInDays)) {
                         continue;
                     }
@@ -61,7 +63,7 @@ async function setLogGroupRetention() {
             } else {
                 isCompleted = true
             }
-        
+
         } catch (error) {
             if (error.code === 'ThrottlingException') {
                 await wait(2000);
