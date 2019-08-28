@@ -48,6 +48,7 @@ async function setLogGroupRetention() {
                     const logGroup = response.logGroups[i];
                     if (logGroup.retentionInDays === cliArgs.retention ||
                         (cliArgs.setOnlyIfUnset && logGroup.retentionInDays)) {
+                        console.log(`Retention period of ${cliArgs.retention} days for log group: ${logGroup.logGroupName} is already set`);
                         continue;
                     }
                     console.log(`Setting retention period of ${cliArgs.retention} day for log group: ${logGroup.logGroupName}`);
