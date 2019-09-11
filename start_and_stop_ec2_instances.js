@@ -1,133 +1,131 @@
 /**
  * 
- * @description This lambda function starts and stops ec2 instances based on event action.
+ * This script starts and stops EC2 instances. 
  */
-
 
 const AWS = require('aws-sdk');
-const ec2 = new AWS.EC2({ region: "ap-south-1" });
 
-function convertToLowerCase(string) {
-    return string.toLowerCase();
-}
+const TAGS = [{
+    key: 'autostartandstop',
+    value: 'true'
+}];
 
-function getEC2Regions() {
-    return ec2.describeRegions().promise();
-}
+const EC2_REGIONS = [
+    'eu-north-1',
+    'ap-south-1',
+    'eu-west-3',
+    'eu-west-2',
+    'eu-west-1',
+    'ap-northeast-2',
+    'ap-northeast-1',
+    'sa-east-1',
+    'ca-central-1',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'eu-central-1',
+    'us-east-1',
+    'us-east-2',
+    'us-west-1',
+    'us-west-2'
+];
 
-function getFilteredEC2InstancesIdByExpiryDateTag(ec2Reservations) {
-    return ec2Reservations.map((reservation) => {
-        return reservation.Instances;
-    }).reduce((allInstances, instancesInReservation) => {
-        if (instancesInReservation) {
-            allInstances = allInstances.concat(instancesInReservation);
-        }
-        return allInstances;
-    }, []).filter((instance) => {
-        return instance.Tags.find((tag) => {
-            return convertToLowerCase(tag.Key) === "expirydate" && Date.now() < new Date(tag.Value).getTime();
-        });
-    }).map((instance) => {
-        return instance.InstanceId;
-    })
-}
-
-/**
- *
- * @param {*} tag format should be "{key: "key", value: "value"}"
- * @description This function returns EC2 instances id filtered by current state and following tags:
- *              Tags: key = "donotstop", value = "false"; 
- *                    key = "expirydate", value = currentDate<expirydate
- */
-async function getEC2InstancesId(regionName, stateName, tag) {
-    const ec2 = new AWS.EC2({ region: regionName });
-    const filters = [];
-    if (stateName) {
-        filters.push({
+// Get instance ids by region, state name, tags
+async function getEc2InstanceIds(ec2Obj, stateName, tags) {
+    try {
+        const filters = [{
             Name: "instance-state-name",
             Values: [
                 stateName
             ]
-        });
-    }
-    if (tag) {
-        const tagKey = convertToLowerCase(tag.key);
-        const tagValue = convertToLowerCase(tag.value);
-        if (tagKey === "donotstop") {
+        }];
+        for (const tagObj of tags) {
             filters.push({
-                Name: `tag:${tagKey}`,
+                Name: `tag:${tagObj.key}`,
                 Values: [
-                    tagValue
+                    tagObj.value
                 ]
-            });
+            })
         }
+        const ec2Instances = await ec2Obj.describeInstances({
+            Filters: filters
+        }).promise();
+        const instanceIds = [];
+        for (const reservation of ec2Instances.Reservations) {
+            for (const instance of reservation.Instances) {
+                instanceIds.push(instance.InstanceId)
+            }
+        }
+        return instanceIds;
+    } catch (e) {
+        throw e;
     }
-    const ec2Instances = await ec2.describeInstances({ Filters: filters }).promise();
-    if (!ec2Instances.Reservations || ec2Instances.Reservations === 0) {
-        return;
-    }
-    return getFilteredEC2InstancesIdByExpiryDateTag(ec2Instances.Reservations);
 }
 
-function stopRunningEC2Instances(instanceIds, regionName) {
-    const ec2 = new AWS.EC2({ region: regionName });
-    return ec2.stopInstances({
+function stopRunningEC2Instances(ec2Obj, instanceIds) {
+    return ec2Obj.stopInstances({
         InstanceIds: instanceIds
     }).promise();
 }
 
-function startStoppedEc2Instances(instanceIds, regionName) {
-    const ec2 = new AWS.EC2({ region: regionName });
-    return ec2.startInstances({
+function startStoppedEc2Instances(ec2Obj, instanceIds) {
+    return ec2Obj.startInstances({
         InstanceIds: instanceIds
     }).promise();
 }
 
-function getEC2InstanceState(action) {
-    switch (action) {
-        case "start":
-            return "stopped";
-        case "stop":
-            return "running";
+async function handleStoppingEc2Instances() {
+    try {
+        console.log('Stopping instances task started..')
+        for (const region of EC2_REGIONS) {
+            const ec2Obj = new AWS.EC2({
+                region
+            })
+            const ec2InstanceIds = await getEc2InstanceIds(ec2Obj, 'running', TAGS);
+            console.log(region, ': ', ec2InstanceIds);
+            if (!ec2InstanceIds || ec2InstanceIds.length === 0) {
+                console.log('No instance for region ', region);
+                continue;
+            }
+            await stopRunningEC2Instances(ec2Obj, ec2InstanceIds);
+            console.log('Stopping task completed. Instances: ', ec2InstanceIds, '& Region: ', region);
+        }
+    } catch (e) {
+        throw e;
     }
 }
 
-/**
- * 
- * @param {*} event event.action should have value "start" or "stop"
- * @description This function takes EC2 instances which are in "running" and "stopped" state and has following tags
- *              Tags: key = "donotstop", value = "false"; 
- *                    key = "expirydate", value = currentDate<expirydate
- *              Then starts or stops instances based on action in event.    
- */
+async function handleStartingEc2Instances() {
+    try {
+        console.log('Starting instances task started..')
+        for (const region of EC2_REGIONS) {
+            const ec2Obj = new AWS.EC2({
+                region
+            })
+            const ec2InstanceIds = await getEc2InstanceIds(ec2Obj, 'stopped', TAGS);
+            console.log(region, ': ', ec2InstanceIds);
+            if (!ec2InstanceIds || ec2InstanceIds.length === 0) {
+                console.log('No instance for region ', region);
+                continue;
+            }
+            await startStoppedEc2Instances(ec2Obj, ec2InstanceIds);
+            console.log('Starting task completed. Instances: ', ec2InstanceIds, ' & Region ', region);
+        }
+    } catch (e) {
+        throw e;
+    }
+}
+
 exports.handler = async (event) => {
     try {
         console.log("Received event: ", JSON.stringify(event, null, 2));
-        if (!event.action && (event.action !== "start" || event.action !== "stop")) {
-            console.log("event.action does not have proper value");
-            return;
+        if (event.action === 'start') {
+            await handleStartingEc2Instances();
         }
-        const ec2Regions = await getEC2Regions();
-        const tag = { key: "donotstop", value: "false" };
-        for (const region of ec2Regions.Regions) {
-            const ec2InstancesId = await getEC2InstancesId(region.RegionName, getEC2InstanceState(event.action), tag);
-            console.log("ec2InstancesId: ", ec2InstancesId);
-            if (!ec2InstancesId || ec2InstancesId.length === 0) {
-                continue;
-            }
-            switch (event.action) {
-                case "stop":
-                    const stoppedInstances = await stopRunningEC2Instances(ec2InstancesId, region.RegionName);
-                    console.log("Stopped instances: ", stoppedInstances);
-                    break;
-                case "start":
-                    const startedInstances = await startStoppedEc2Instances(ec2InstancesId, region.RegionName);
-                    console.log("Started instances: ", startedInstances);
-                    break;
-            }
+        if (event.action === 'stop') {
+            await handleStoppingEc2Instances();
         }
         return;
-    } catch (err) {
-        throw err;
+    } catch (e) {
+        throw e;
     }
 };
