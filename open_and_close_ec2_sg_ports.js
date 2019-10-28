@@ -167,7 +167,7 @@ async function handleOpeningAndClosingPorts() {
                         for (const ipRange of ipPermission.IpRanges) {
                             if (ipRange.CidrIp === cidrIp) {
                                 await revokeSecurityGroupIngress(ec2Obj, sg.GroupId, ipRange.CidrIp, undefined, fromPort, toPort, ipProtocol);
-                                logging('Yooooooooooo..... revoked security group ingress');
+                                logging('Revoked security group ingress');
                             }
                         }
                     }
@@ -175,7 +175,7 @@ async function handleOpeningAndClosingPorts() {
                         for (const userIdGroupPair of ipPermission.UserIdGroupPairs) {
                             if (userIdGroupPair.GroupId === sourceSgId) {
                                 await revokeSecurityGroupIngress(ec2Obj, sg.GroupId, undefined, userIdGroupPair.GroupId, fromPort, toPort, ipProtocol);
-                                console.log('Yooooooooooo..... revoked security group ingress');
+                                console.log('Revoked security group ingress');
                             }
                         }
                     }
@@ -185,7 +185,7 @@ async function handleOpeningAndClosingPorts() {
         if (action === 'open') {
             for (const sg of describeSgsRes.SecurityGroups) {
                 await authorizeSecurityGroupIngress(ec2Obj, sg.GroupId, cidrIp, sourceSgId, ipProtocol, fromPort, toPort, description);
-                logging('Yooooooooooo..... authorized security group ingress');
+                logging('Authorized security group ingress');
             }
         }
     } catch (error) {
