@@ -12,7 +12,7 @@ const cli = require('cli');
 const cliArgs = cli.parse({
     region: ['r', 'AWS region', 'string'],
     filterName: ['f', 'Pass filter name to filter Lambda functions', 'string'],
-    runTime: ['R', 'Function Run time', 'string']
+    runTime: ['v', 'Function Run time', 'string']
 });
 
 if (!cliArgs.region) {
