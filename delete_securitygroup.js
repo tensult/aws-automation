@@ -9,7 +9,7 @@ const AWS = require('aws-sdk');
 
 // Give a region in which you want to delete security groups
 
-const regions=['ap-south-1','us-east-1'];
+const regions=['ap-south-1','us-east-1','us-west-1'];
 
 function describeAllSgs(ec2Obj) {
     var params = {
