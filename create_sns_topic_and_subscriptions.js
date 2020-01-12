@@ -32,7 +32,7 @@ function getTopicDisplayName() {
 }
 
 function getSubscriptionEndpoints() {
-    return awsUtil.getStringArrayFromCommaSeperatedString(cliArgs.subscriptionEnpoints);
+    return awsUtil.getStringArrayFromCommaSeparatedString(cliArgs.subscriptionEnpoints);
 }
 
 function createSubscription(sns, topicArn, subscriptionEndpoint) {

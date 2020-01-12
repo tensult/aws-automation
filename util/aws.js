@@ -61,7 +61,7 @@ exports.mergeTags = function (tags1, tags2) {
     });
 }
 
-exports.getStringArrayFromCommaSeperatedString = function (stringValue) {
+exports.getStringArrayFromCommaSeparatedString = function (stringValue) {
     if (!stringValue) {
         return undefined;
     }
