@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Requires AWS CLI
+
 ip=`curl -s https://api.ipify.org`
 
 aws ec2 authorize-security-group-ingress --protocol tcp --port 22 --cidr $ip/32 --group-id $1

@@ -1,7 +1,13 @@
 /**
  * Shares AMI with another AWS account.
  * Supports AMI encrypted with default KMS key
- * Usage: AWS_PROFILE=<your-aws-profile> node share_encrypted_ami.js -r <region> -a <ami-id> -A <accountId-to-share> -k <KMS Customer managed key>
+ * 
+ * Usage for sharing AMI encrypted with Default Key: 
+ * AWS_PROFILE=<your-aws-profile> node share_encrypted_ami.js -r <source-region> -a <ami-id> -A <accountId-to-share> -k <KMS Customer managed key>
+ * Usage for sharing AMI encrypted with Default Key to different region:
+ * AWS_PROFILE=<your-aws-profile> node share_encrypted_ami.js -r <source-region> -R <destination-region> -a <ami-id> -A <accountId-to-share> -k <KMS Customer managed key>
+ * Usage for sharing AMI to different region without encryption:
+ * AWS_PROFILE=<your-aws-profile> node share_encrypted_ami.js -r <source-region> -R <destination-region> -a <ami-id> -A <accountId-to-share>
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const AWS = require('aws-sdk');
