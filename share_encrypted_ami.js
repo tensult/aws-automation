@@ -1,6 +1,7 @@
 /**
  * Shares AMI with another AWS account.
  * Supports AMI encrypted with default KMS key
+ * Usage: AWS_PROFILE=<your-aws-profile> node share_encrypted_ami.js -r <region> -a <ami-id> -A <accountId-to-share> -k <KMS Customer managed key>
  */
 const awsConfigHelper = require('./util/awsConfigHelper');
 const AWS = require('aws-sdk');
