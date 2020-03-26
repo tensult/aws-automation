@@ -20,8 +20,8 @@
             "Effect": "Allow",
             "Action": "iam:CreateRole",
             "Resource": [
-                "arn:aws:iam::123456789012:role/service-role/AWSCodePipelineServiceRole-*",
-                "arn:aws:iam::123456789012:role/service-role/cwe-*"
+                "arn:aws:iam::<123456789012>:role/service-role/AWSCodePipelineServiceRole-*",
+                "arn:aws:iam::<123456789012>:role/service-role/cwe-*"
             ]
         },
         {
@@ -29,8 +29,8 @@
             "Effect": "Allow",
             "Action": "iam:PassRole",
             "Resource": [
-                "arn:aws:iam::123456789012:role/service-role/cwe-role*",
-                "arn:aws:iam::123456789012:role/service-role/AWSCodePipelineServiceRole*"
+                "arn:aws:iam::<123456789012>:role/service-role/cwe-role*",
+                "arn:aws:iam::<123456789012>:role/service-role/AWSCodePipelineServiceRole*"
             ]
         }
     ]
