@@ -21,7 +21,7 @@ const filterRegex = new RegExp(cliArgs.filterName);
 let isCompleted = false;
 let nextToken = undefined;
 
-async function seFunctionEnvVar() {
+async function setFunctionEnvVar() {
     await awsConfigHelper.updateConfig(cliArgs.region);
     const lambda = new AWS.Lambda();
     while (!isCompleted) {
@@ -57,4 +57,4 @@ async function seFunctionEnvVar() {
         }
     }
 }
-seFunctionEnvVar();
+setFunctionEnvVar();
