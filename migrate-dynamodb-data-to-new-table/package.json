@@ -1,0 +1,16 @@
+{
+  "name": "migrate-dynamodb-data-to-new-table",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^14.0.1",
+    "aws-sdk": "^2.675.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Parag Poddar",
+  "license": "ISC"
+}
