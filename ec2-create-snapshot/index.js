@@ -162,26 +162,6 @@ async function checkRootVolume(ec2Reservations, volumeId) {
     }
 }
 
-async function handleEc2CreateSnapshotForOthersVolume(ec2Reservations) {
-    try {
-        if (!isSnapshotInstance(ec2Reservations)) {
-            return;
-        }
-        let instance = ec2Reservations.Reservations[0].Instances[0];
-        let rootDeviceName = instance.RootDeviceName;
-        for (let j = 0; j < instance.BlockDeviceMappings.length; j++) { // Create snapshot for other device volume
-            if (instance.BlockDeviceMappings[j].DeviceName === rootDeviceName)
-                continue;
-            let createdEc2Snapshot = await ec2CreateSnapshot(instance.BlockDeviceMappings[j].Ebs.VolumeId);
-            console.log('others volume snapshot created:', createdEc2Snapshot);
-        }
-
-    } catch (err) {
-        console.log(JSON.stringify(err));
-        throw err;
-    }
-}
-
 async function handleEc2CreateSnapshotForRootVolume(instanceId) {
     try {
         let ec2Reservations = await getEc2Instances(undefined, instanceId);
@@ -220,6 +200,7 @@ function getVolumeId(volumeSource) {
     return volumeSource.split('/')[1];
 }
 
+
 exports.handler = async (event) => {
     console.log('Received event: ', JSON.stringify(event, null, 2));
     try {
@@ -230,16 +211,7 @@ exports.handler = async (event) => {
         // When Instance is stopped, we will take root volume snapshot first.
         else if (event['detail-type'] === 'EC2 Instance State-change Notification' && event.detail['instance-id'] && event.detail.state === 'stopped') {
             await handleEc2CreateSnapshotForRootVolume(event.detail['instance-id']);
-        }
-        // When Root volume snapshot is completed, we will take other volumes snapshots and start the instance
-        else if (event['detail-type'] === 'EBS Snapshot Notification' && event.detail.event === 'createSnapshot' && event.detail.result === 'succeeded') {
-            let volumeId = getVolumeId(event.detail.source);
-            let ec2Reservations = await getEc2Instances(undefined, undefined, volumeId);
-            let isRootVolume = await checkRootVolume(ec2Reservations, volumeId);
-            if (isRootVolume) {
-                await handleEc2CreateSnapshotForOthersVolume(ec2Reservations);
-                await handleStartEc2Instance(ec2Reservations);
-            }
+            await handleStartEc2Instance(ec2Reservations);
         }
         // When Root volume snapshot is failed, we will send SNS message for manual investigation and start the instance
         else if (event['detail-type'] === 'EBS Snapshot Notification' && event.detail.event === 'createSnapshot' && event.detail.result === 'failed') {
