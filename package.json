@@ -20,7 +20,7 @@
     "cli": "^1.0.1"
   },
   "dependencies": {
-    "aws-sdk": "^2.407.0",
+    "aws-sdk": "^2.814.0",
     "convert-array-to-csv": "^1.0.9"
   }
 }
